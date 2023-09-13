@@ -1,0 +1,165 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "e84744dee27e2bfe025c38f8fda18c64",
+    "packages": [
+        {
+            "name": "losthost/db",
+            "version": "v1.4.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Datahider/DB.git",
+                "reference": "73caaefbdb5ae02031934cb303a8e0b2a427242f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Datahider/DB/zipball/73caaefbdb5ae02031934cb303a8e0b2a427242f",
+                "reference": "73caaefbdb5ae02031934cb303a8e0b2a427242f",
+                "shasum": ""
+            },
+            "require": {
+                "losthost/self-testing-suite": "1.0.4",
+                "php": ">=7.4.0"
+            },
+            "type": "class",
+            "autoload": {
+                "psr-4": {
+                    "losthost\\DB\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Peter Ioannidis",
+                    "email": "pio@pio.su",
+                    "homepage": "https://i.pio.su",
+                    "role": "Ideologist"
+                }
+            ],
+            "description": "Database access with so called DB Objects (descendants of class DBObject)",
+            "homepage": "https://github.com/datahider/DB",
+            "keywords": [
+                "database",
+                "db"
+            ],
+            "support": {
+                "issues": "https://github.com/Datahider/DB/issues",
+                "source": "https://github.com/Datahider/DB/tree/v1.4.6"
+            },
+            "time": "2023-09-10T04:34:00+00:00"
+        },
+        {
+            "name": "losthost/self-testing-suite",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Datahider/lhTestingSuite.git",
+                "reference": "664ea58491888d35ebb727630f7db7628d2db95b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Datahider/lhTestingSuite/zipball/664ea58491888d35ebb727630f7db7628d2db95b",
+                "reference": "664ea58491888d35ebb727630f7db7628d2db95b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "losthost\\SelfTestingSuite\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Petros Ioannidis",
+                    "email": "pio@pio.su"
+                }
+            ],
+            "description": "A parrent class for self-testing classes",
+            "support": {
+                "issues": "https://github.com/Datahider/lhTestingSuite/issues",
+                "source": "https://github.com/Datahider/lhTestingSuite/tree/1.0.4"
+            },
+            "time": "2023-09-04T05:48:36+00:00"
+        },
+        {
+            "name": "telegram-bot/api",
+            "version": "v2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TelegramBot/Api.git",
+                "reference": "eaae3526223db49a1bad76a2dfa501dc287979cf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TelegramBot/Api/zipball/eaae3526223db49a1bad76a2dfa501dc287979cf",
+                "reference": "eaae3526223db49a1bad76a2dfa501dc287979cf",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.16",
+                "symfony/phpunit-bridge": "*",
+                "vimeo/psalm": "^5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.5-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TelegramBot\\Api\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ilya Gusev",
+                    "email": "mail@igusev.ru",
+                    "homepage": "https://php-cat.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP Wrapper for Telegram Bot API",
+            "homepage": "https://github.com/TelegramBot/Api",
+            "keywords": [
+                "bot",
+                "bot api",
+                "php",
+                "telegram"
+            ],
+            "support": {
+                "issues": "https://github.com/TelegramBot/Api/issues",
+                "source": "https://github.com/TelegramBot/Api/tree/v2.5.0"
+            },
+            "time": "2023-08-09T13:53:12+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
+}

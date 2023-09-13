@@ -1,0 +1,19 @@
+{
+    "name": "pio/telle",
+    "description": "A simple template for extreme complex bot",
+    "authors": [
+        {
+            "name": "drweb",
+            "email": "pio@pio.su"
+        }
+    ],
+    "require": {
+        "telegram-bot/api": "v2.5.0",
+        "losthost/db": "v1.4.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "losthost\\telle\\": "src"
+        }
+    }
+}
