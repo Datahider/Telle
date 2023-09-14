@@ -9,7 +9,7 @@
     ],
     "require": {
         "telegram-bot/api": "v2.5.0",
-        "losthost/db": "v1.4.6"
+        "losthost/db": ">=v1.4.7"
     },
     "autoload": {
         "psr-4": {

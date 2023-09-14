@@ -193,6 +193,7 @@ class Bot {
             }
         } catch (\TelegramBot\Api\Exception $ex) {
             if ($ex->getCode() != 28) {
+                error_log('Exception with code: '. $ex->getCode());
                 throw $ex;
             }
         }
