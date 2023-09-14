@@ -37,7 +37,7 @@ class Bot {
     protected static string $worker_start_cmd = 'start /b php '. __DIR__. '/start-worker.php'; // Windows
     //protected static string $worker_start_cmd = 'php '. __DIR__. '/start-worker.php >/dev/null 2>&1 &'; // *nix
 
-    protected static $handlers = [                      // array of Handler descendant names
+    protected static $handlers = [                  // array of Handlers. Override by global $trackers 
         '\\losthost\\telle\\LoggerHandler',                 // Logs text messages to error log
         '\\losthost\\telle\\StartCommandHandler',           // Handles /start command
         '\\losthost\\telle\\EchoHandler',                   // Sends echo text back to user
@@ -45,18 +45,34 @@ class Bot {
         '\\losthost\\telle\\FinalHandler',                  // Sends final message
         '\\losthost\\telle\\AnotherFinalHandler',           // This is for non-text updates
     ];  
+    
+    protected static $trackers = [                  // Array of DBTrackers. Override by global $trackers
+        \losthost\telle\LoggerTracker::class => [   // Class name as array key
+            'events' => [                               // Use \losthost\DB\DBEvent::ALL_EVENTS for all
+                \losthost\DB\DBEvent::AFTER_INSERT,
+                \losthost\DB\DBEvent::AFTER_UPDATE
+            ],
+            'objects' => [                              // Use '*' for all
+                BotParam::class, 
+                Update::class
+            ],
+                                                        // Add more if you need
+        ]
+    ];
     /// End of config 
     
     
     protected static $workers = [];
     protected static $next_update_id;
-    protected static $non_config = [ 'workers', 'api', 'non_config', 'next_update_id' ];
+    protected static $non_config = [ 'workers', 'api', 'non_config', 'next_update_id', 'handlers', 'trackers' ];
 
     public static \TelegramBot\Api\BotApi $api;
     
     static public function init() {
 
         self::setupProperties();
+        self::setupHandlers();
+        self::setupTrackers();
 
         \losthost\DB\DB::connect(self::$db_host, self::$db_user, self::$db_pass, self::$db_name, self::$db_prefix);
         
@@ -76,22 +92,36 @@ class Bot {
                 self::$$key = $value;
             }
         }
-        
-        static::setupHandlers();
     }
     
     static protected function setupHandlers() {
+        global $handlers;
         
-        if (!is_array(self::$handlers)) {
-            throw new \Exception("\$config['handlers'] must be an array of \losthost\telle\Handler descendants");
+        if (isset($handlers) && is_array($handlers)) {
+            self::$handlers = $handlers;
         }
 
         foreach (self::$handlers as $key => $class) {
             
-            if (!is_a($class, '\losthost\telle\Handler', true)) {
-                throw new \Exception('$config->handlers must ba an array of Handler descendants.');
+            if (!is_a($class, '\\losthost\\telle\\Handler', true)) {
+                throw new \Exception('$handlers must ba an array of \\losthost\\telle\\Handler descendants.');
             }
             self::$handlers[$key] = new $class();
+        }
+    }
+    
+    static protected function setupTrackers() {
+        global $trackers;
+        
+        if (isset($trackers) && is_array($trackers)) {
+            self::$trackers = $trackers;
+        }
+        
+        foreach (self::$trackers as $tracker => $data ) {
+            if (!is_a($tracker, '\\losthost\\DB\\DBTracker', true)) {
+                throw new \Exception('$trackers must ba an array of \\losthost\\DB\\DBTracker descendants.');
+            }
+            \losthost\DB\DB::addTracker($data['events'], $data['objects'], new $tracker());
         }
     }
 
@@ -114,11 +144,14 @@ class Bot {
         }
     }
     
-    static public function processHandlers(\TelegramBot\Api\Types\Update &$update) {
+    static public function processHandlers(\TelegramBot\Api\Types\Update &$update, array|null $handlers=null) {
         
         $last = false;
+        if ($handlers === null) {
+            $handlers = self::$handlers;
+        }
         
-        foreach (self::$handlers as $handler) {
+        foreach ($handlers as $handler) {
             
             if ((!$last || $handler->isFinal()) && $handler->checkUpdate($update)) {
                 $handler->handleUpdate($update);
