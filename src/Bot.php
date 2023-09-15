@@ -185,6 +185,12 @@ class Bot {
     }
 
     static protected function getUpdates() {
+        
+        $updates = self::getPendingUpdates();
+        if ($updates) {
+            return $updates;
+        }
+        
         while (1) {
             $updates = self::tryGetUpdates();
             if ($updates) {
@@ -237,7 +243,6 @@ class Bot {
 
     static function dispatchUpdates($updates=[]) {
         
-        self::mergeUnprocessed($updates);
         $free_workers = self::getFreeWorkers();
         
         foreach ($updates as $update) {
@@ -256,14 +261,21 @@ class Bot {
         self::$next_update_id->write();
     }
     
-    static protected function mergeUnprocessed(&$updates) {
+    static protected function getPendingUpdates() {
 
+        $updates = [];
         $pending_updates = new \losthost\DB\DBView(self::SQL_GET_UNPROCESSED_UPDATES, time());
         
         while ($pending_updates->next()) {
             $pending_update = new PendingUpdate($pending_updates->id);
-            array_unshift($updates, $pending_update->data);
+            $updates[] = $pending_update->data;
             $pending_update->delete();
+        }
+        
+        if (count($updates) == 0) {
+            return null;
+        } else {
+            return $updates;
         }
     }
 
@@ -310,7 +322,7 @@ class Bot {
             SELECT id
             FROM [pending_updates]
             WHERE locked_till < ?
-            ORDER BY id DESC
+            ORDER BY id ASC
             END;
     
     
