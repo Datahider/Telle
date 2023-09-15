@@ -13,12 +13,16 @@ namespace losthost\telle;
  * @author drweb
  */
 class FinalHandler extends Handler {
-    
+
+    protected function init() : void {
+        // nothing to
+    }
+
     public function isFinal(): bool {
         return true;
     }
     
-    protected function check(\TelegramBot\Api\Types\Update &$update) {
+    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
         $message = $update->getMessage();
         if (!$message) {
             return false;
@@ -26,10 +30,12 @@ class FinalHandler extends Handler {
         return (bool)$message->getText();
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) {
+    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
         Bot::$api->sendMessage(
             $update->getMessage()->getChat()->getId(),
             'Final handlers are always called.',
         );
+        
+        return true;
     }
 }

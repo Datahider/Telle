@@ -14,7 +14,15 @@ namespace losthost\telle;
  */
 class EchoHandler extends Handler {
 
-    protected function check(\TelegramBot\Api\Types\Update &$update) {
+    public function isFinal() : bool {
+        return false;
+    }
+    
+    protected function init() : void {
+        // nothing to
+    }
+
+    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
         $message = $update->getMessage();
         if (!$message) {
             return false;
@@ -22,7 +30,7 @@ class EchoHandler extends Handler {
         return (bool)$message->getText();
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) {
+    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
         
         $text = $update->getMessage()->getText();
         if ($text == 'ping') {
@@ -47,6 +55,6 @@ class EchoHandler extends Handler {
             );
         }
         
-        $this->setLast();
+        return true;
     }
 }

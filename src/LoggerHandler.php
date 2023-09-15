@@ -13,8 +13,16 @@ namespace losthost\telle;
  * @author drweb
  */
 class LoggerHandler extends Handler {
+
+    public function isFinal() : bool {
+        return false;
+    }
     
-    protected function check(\TelegramBot\Api\Types\Update &$update) {
+    protected function init() : void {
+        // nothing to
+    }
+    
+    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
         $message = $update->getMessage();
         if (!$message) {
             return false;
@@ -22,7 +30,8 @@ class LoggerHandler extends Handler {
         return (bool)$message->getText();
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) {
+    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
         error_log($update->getMessage()->getText());
+        return false;
     }
 }

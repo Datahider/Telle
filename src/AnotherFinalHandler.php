@@ -14,11 +14,15 @@ namespace losthost\telle;
  */
 class AnotherFinalHandler extends Handler {
     
-    public function isFinal(): bool {
+    public function isFinal() : bool {
         return true;
     }
     
-    protected function check(\TelegramBot\Api\Types\Update &$update) {
+    protected function init() : void {
+        // nothing to
+    }
+
+    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
         $message = $update->getMessage();
         if (!$message) {
             return true;
@@ -26,13 +30,14 @@ class AnotherFinalHandler extends Handler {
         return !(bool)$message->getText();
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) {
+    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
         
         Bot::$api->sendMessage(
             $this->getChatId($update),
             'This another final handler is for non-text updates',
         );
         
+        return true;
     }
     
     protected function getChatId(\TelegramBot\Api\Types\Update &$update) {

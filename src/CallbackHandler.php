@@ -13,13 +13,21 @@ namespace losthost\telle;
  * @author drweb
  */
 class CallbackHandler extends Handler {
+
+    public function isFinal() : bool {
+        return false;
+    }
     
-    protected function check(\TelegramBot\Api\Types\Update &$update) {
+    protected function init() : void {
+        // nothing to
+    }
+    
+    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
         $callback_query = $update->getCallbackQuery();
         return (bool)$callback_query;
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) {
+    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
         $callback_query = $update->getCallbackQuery();
 
         Bot::$api->sendMessage(
@@ -27,11 +35,13 @@ class CallbackHandler extends Handler {
             'You have pressed <b>'. $update->getCallbackQuery()->getData(). '</b> button.',
             'HTML'
         );
-        $this->setLast();
+
         try {
             Bot::$api->answerCallbackQuery($callback_query->getId(), 'Put additional info here.');
         } catch (\Exception $e) {
             /// Nothing to do (old query)
         }
+        
+        return true;
     }
 }

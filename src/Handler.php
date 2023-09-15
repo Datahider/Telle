@@ -13,26 +13,25 @@ namespace losthost\telle;
  */
 abstract class Handler {
 
-    protected bool $last;
     protected $check_cache;
-    protected $last_update_id;
-
 
     public function __construct() {
-        $this->last = false;
-        $this->check_cache = null;
-        $this->last_update_id = null;
+        $this->initHandler();
     }
     
-    abstract protected function check(\TelegramBot\Api\Types\Update &$update);
-    abstract protected function handle(\TelegramBot\Api\Types\Update &$update);
+    abstract public function isFinal() : bool;
+    abstract protected function init() : void;
+    abstract protected function check(\TelegramBot\Api\Types\Update &$update) : bool;
+    abstract protected function handle(\TelegramBot\Api\Types\Update &$update) : bool;
 
+    public function initHandler() {
+        $this->check_cache = null;
+        $this->init();
+    }
+    
     public function checkUpdate(\TelegramBot\Api\Types\Update &$update) {
-        $current_update_id = $update->getUpdateId();
-        if ($this->last_update_id != $current_update_id) {
+        if ($this->check_cache === null) {
             $this->check_cache = $this->check($update);
-            $this->last_update_id = $current_update_id;
-            $this->last = false;
         }
         
         return $this->check_cache; 
@@ -44,17 +43,4 @@ abstract class Handler {
         }
         return $this->handle($update);
     }
-    
-    public function isLast() {
-        return $this->last;
-    }
-    
-    public function setLast() {
-        $this->last = true;
-    }
-    
-    public function isFinal() {
-        return false;
-    }
-    
 }

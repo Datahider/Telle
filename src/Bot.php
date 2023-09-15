@@ -50,11 +50,12 @@ class Bot {
         \losthost\telle\LoggerTracker::class => [   // Class name as array key
             'events' => [                               // Use \losthost\DB\DBEvent::ALL_EVENTS for all
                 \losthost\DB\DBEvent::AFTER_INSERT,
-                \losthost\DB\DBEvent::AFTER_UPDATE
+                \losthost\DB\DBEvent::AFTER_UPDATE,
+                \losthost\DB\DBEvent::AFTER_DELETE,
             ],
             'objects' => [                              // Use '*' for all
                 BotParam::class, 
-                Update::class
+                PendingUpdate::class,
             ],
                                                         // Add more if you need
         ]
@@ -75,6 +76,7 @@ class Bot {
         self::setupTrackers();
 
         \losthost\DB\DB::connect(self::$db_host, self::$db_user, self::$db_pass, self::$db_name, self::$db_prefix);
+        \losthost\telle\PendingUpdate::initDataStructure();
         
         self::$api = new \TelegramBot\Api\BotApi(self::$token); 
         self::$api->setCurlOption(CURLOPT_CAINFO, self::$cacert);
@@ -146,20 +148,24 @@ class Bot {
     
     static public function processHandlers(\TelegramBot\Api\Types\Update &$update, array|null $handlers=null) {
         
-        $last = false;
+        $processed = false;
         if ($handlers === null) {
             $handlers = self::$handlers;
         }
         
-        foreach ($handlers as $handler) {
-            
-            if ((!$last || $handler->isFinal()) && $handler->checkUpdate($update)) {
-                $handler->handleUpdate($update);
+        try {
+            foreach ($handlers as $handler) {
+                
+                $handler->initHandler();
+                if ((!$processed || $handler->isFinal()) && $handler->checkUpdate($update)) {
+                    $processed = $handler->handleUpdate($update);
+                }
             }
-
-            if (!$last) {
-                $last = $handler->isLast();
-            }
+        } catch (\Exception $e) {
+            error_log("Got Exception with code ". $e->getCode(). " while processing handler ". get_class($handler));
+            error_log($e->getMessage());
+            error_log($e->getTraceAsString());
+            throw $e;
         }
     }
 
@@ -169,64 +175,95 @@ class Bot {
     
     static protected function standalone() {
         
-        self::startWorkers();
-        self::$next_update_id = new BotParam('next_update_id', 0);
-        
-        self::dispatch();
-        
-        while (1) {
-            self::updatesLoopIteration();
+        if (self::$workers_count <= 1) {
+            self::selfProcessing();
+        } else {
+            self::workersProcessing();
         }
+        
         throw new \Exception("Standalone process finished unexpectedly.");
     }
 
-    static protected function updatesLoopIteration() {
-        
-        try {
-            while (1) {
-                $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, self::$get_updates_timeout);
-                if (!$updates) {
-                    continue;
-                }
-                
-                self::processUpdates($updates);
-            }
-        } catch (\TelegramBot\Api\Exception $ex) {
-            if ($ex->getCode() != 28) {
-                error_log('Exception with code: '. $ex->getCode());
-                throw $ex;
+    static protected function getUpdates() {
+        while (1) {
+            $updates = self::tryGetUpdates();
+            if ($updates) {
+                return $updates;
             }
         }
     }
 
-    static protected function processUpdates(&$updates) {
-        
-        foreach ($updates as $update) {
-            new Update($update);
-            self::$next_update_id->value = $update->getUpdateId() + 1;
-            self::$next_update_id->write();
+    static protected function tryGetUpdates() {
+        try {
+            $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, self::$get_updates_timeout);
+            if ($updates) {
+                return $updates;
+            }
+        } catch (\Exception $e) {
+            if ($e->getCode() != 28) {
+                error_log('Exception: '. $e->getCode(). ' - '. $e->getMessage());
+            }
         }
+        return null;
+    }
 
-        self::dispatch();
+    static protected function processUpdates($updates) {
+        foreach ($updates as $update) {
+            self::processHandlers($update);
+        }
+        
+        self::$next_update_id->value = $update->getUpdateId() + 1;
+        self::$next_update_id->write();
+    }
+
+    static protected function selfProcessing() {
+        
+        self::$next_update_id = new BotParam('next_update_id', 0);
+        while (1) {
+            $updates = self::getUpdates();
+            self::processUpdates($updates);
+        }
     }
     
-    static protected function dispatch() {
-        $now = time();
-        $to_process = new \losthost\DB\DBView(self::SQL_GET_UPDATES_TO_PROCESS, time());
-        $free_workers = self::getFreeWorkers($now);
+    static protected function workersProcessing() {
+        self::startWorkers();
+        self::$next_update_id = new BotParam('next_update_id', 0);
+        
+        while (1) {
+            $updates = self::getUpdates();
+            self::dispatchUpdates($updates);
+        }
+    }
 
-        while ($to_process->next()) {
+    static function dispatchUpdates($updates=[]) {
+        
+        self::mergeUnprocessed($updates);
+        $free_workers = self::getFreeWorkers();
+        
+        foreach ($updates as $update) {
             $worker = array_shift($free_workers);
             if ($worker === null) {
+                error_log('Waiting for free workers...');
                 sleep(1);
-                $free_workers = self::getFreeWorkers($now);
+                $free_workers = self::getFreeWorkers();
+                continue;
             }
+            
+            new PendingUpdate($update, $worker, self::$max_processing_time);
+            self::$workers[$worker]->send($update->getUpdateId());            
+        }
+        self::$next_update_id->value = $update->getUpdateId() + 1;
+        self::$next_update_id->write();
+    }
+    
+    static protected function mergeUnprocessed(&$updates) {
 
-            $update = new Update($to_process->id);
-            $update->locked_till = $now + self::$max_processing_time;
-            $update->worker = $worker;
-            $update->write();
-            self::$workers[$worker]->send($to_process->id);
+        $pending_updates = new \losthost\DB\DBView(self::SQL_GET_UNPROCESSED_UPDATES, time());
+        
+        while ($pending_updates->next()) {
+            $pending_update = new PendingUpdate($pending_updates->id);
+            array_unshift($updates, $pending_update->data);
+            $pending_update->delete();
         }
     }
 
@@ -256,10 +293,6 @@ class Bot {
         }
     }
 
-    static public function getHandlers() {
-        return self::$handlers;
-    }
-    
     static public function getCaInfo() {
         return self::$cacert;
     }
@@ -268,26 +301,17 @@ class Bot {
             SELECT 
                 worker
             FROM 
-                [updates]
+                [pending_updates]
             WHERE 
-                worker IS NOT NULL
-                AND state <> 255
-                AND locked_till > ?
+                locked_till > ?
             END;
     
-    const SQL_GET_UPDATES_TO_PROCESS = <<<END
-            SELECT
-                id
-            FROM    
-                [updates]
-            WHERE
-                state <> 255
-                AND (
-                    locked_till IS NULL
-                    OR locked_till <= ?
-                )
-            ORDER BY 
-                id
+    const SQL_GET_UNPROCESSED_UPDATES = <<<END
+            SELECT id
+            FROM [pending_updates]
+            WHERE locked_till < ?
+            ORDER BY id DESC
             END;
+    
     
 }

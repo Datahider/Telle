@@ -18,8 +18,6 @@ class Worker {
     protected $init;
     
     protected $handlers;
-    protected $update;
-    protected $db_update;
 
     public function __construct($id) {
 
@@ -46,9 +44,9 @@ class Worker {
         error_log("Worker $this->id is started.");
 
         while (1) {
-            $this->getUpdate();
-            $this->processUpdate();
-            
+            $pending_update = $this->getUpdate();
+            Bot::processHandlers($pending_update->data);
+            $pending_update->delete();
         }
     }
     
@@ -59,20 +57,7 @@ class Worker {
             die("Worker $this->id: Can't read next update. Dieing.\n");
         }
         
-        $this->db_update = new Update((int)$line);
-        $this->update = $this->db_update->data;
-    }
-    
-    protected function processUpdate() {
-
-        $this->db_update->state = Update::STATE_PROCESSING;
-        $this->db_update->write();
-
-        Bot::processHandlers($this->update);
-        
-        $this->db_update->state = Update::STATE_FINISHED;
-        $this->db_update->locked_till = null;
-        $this->db_update->write();
+        return new PendingUpdate((int)$line);
     }
     
 }

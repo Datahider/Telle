@@ -14,7 +14,15 @@ namespace losthost\telle;
  */
 class StartCommandHandler extends Handler {
     
-    protected function check(\TelegramBot\Api\Types\Update &$update) {
+    public function isFinal() : bool {
+        return false;
+    }
+    
+    protected function init() : void {
+        // nothing to
+    }
+
+    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
         $message = $update->getMessage();
         if (!$message) {
             return false;
@@ -22,11 +30,12 @@ class StartCommandHandler extends Handler {
         return (bool)preg_match("/^\/[Ss][Tt][Aa][Rr][Tt](\s.*)*$/", $message->getText());
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) {
+    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
         Bot::$api->sendMessage(
             $update->getMessage()->getChat()->getId(),
             "Hi! This is an example /start command handler"
         );
-        $this->setLast();
+        return true;
     }
+
 }
