@@ -4,25 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4118dcfed636e3af941329b131702e2",
+    "content-hash": "dac6eb1fe8850276089300942ff65e32",
     "packages": [
         {
             "name": "losthost/db",
-            "version": "v1.4.7",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Datahider/DB.git",
-                "reference": "8efe939f1bcb07ddc9996b93dfc8b53ff8c3025a"
+                "reference": "2a1db0a98750b3a69d78a42f1f880518ee9d6b2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/DB/zipball/8efe939f1bcb07ddc9996b93dfc8b53ff8c3025a",
-                "reference": "8efe939f1bcb07ddc9996b93dfc8b53ff8c3025a",
+                "url": "https://api.github.com/repos/Datahider/DB/zipball/2a1db0a98750b3a69d78a42f1f880518ee9d6b2d",
+                "reference": "2a1db0a98750b3a69d78a42f1f880518ee9d6b2d",
                 "shasum": ""
             },
             "require": {
-                "losthost/self-testing-suite": "1.0.4",
-                "php": ">=7.4.0"
+                "losthost/self-testing-suite": ">=1.1.0",
+                "php": ">=8.2.10"
             },
             "type": "class",
             "autoload": {
@@ -50,26 +50,26 @@
             ],
             "support": {
                 "issues": "https://github.com/Datahider/DB/issues",
-                "source": "https://github.com/Datahider/DB/tree/v1.4.7"
+                "source": "https://github.com/Datahider/DB/tree/v1.5.0"
             },
-            "time": "2023-09-14T22:35:04+00:00"
+            "time": "2023-09-16T14:50:00+00:00"
         },
         {
             "name": "losthost/self-testing-suite",
-            "version": "1.0.4",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Datahider/lhTestingSuite.git",
-                "reference": "664ea58491888d35ebb727630f7db7628d2db95b"
+                "reference": "65404736a00189811a11f901a22a9597edad7bb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/lhTestingSuite/zipball/664ea58491888d35ebb727630f7db7628d2db95b",
-                "reference": "664ea58491888d35ebb727630f7db7628d2db95b",
+                "url": "https://api.github.com/repos/Datahider/lhTestingSuite/zipball/65404736a00189811a11f901a22a9597edad7bb0",
+                "reference": "65404736a00189811a11f901a22a9597edad7bb0",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.0.0"
+                "php": ">=8.2.10"
             },
             "type": "library",
             "autoload": {
@@ -87,9 +87,9 @@
             "description": "A parrent class for self-testing classes",
             "support": {
                 "issues": "https://github.com/Datahider/lhTestingSuite/issues",
-                "source": "https://github.com/Datahider/lhTestingSuite/tree/1.0.4"
+                "source": "https://github.com/Datahider/lhTestingSuite/tree/v1.1.0"
             },
-            "time": "2023-09-04T05:48:36+00:00"
+            "time": "2023-09-16T14:42:11+00:00"
         },
         {
             "name": "telegram-bot/api",
@@ -159,7 +159,9 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=8.2.10"
+    },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"
 }
