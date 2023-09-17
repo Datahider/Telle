@@ -77,7 +77,6 @@ class Bot {
         self::setupTrackers();
 
         \losthost\DB\DB::connect(self::$db_host, self::$db_user, self::$db_pass, self::$db_name, self::$db_prefix);
-        \losthost\telle\PendingUpdate::initDataStructure();
         
         self::$api = new \TelegramBot\Api\BotApi(self::$token); 
         self::$api->setCurlOption(CURLOPT_CAINFO, self::$cacert);
