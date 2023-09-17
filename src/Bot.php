@@ -68,8 +68,9 @@ class Bot {
     protected static $non_config = [ 'workers', 'api', 'non_config', 'next_update_id', 'handlers', 'trackers' ];
 
     public static \TelegramBot\Api\BotApi $api;
-    
-    static public function init() {
+    protected static $is_initialized = false;
+
+        static public function init() {
 
         self::setupProperties();
         self::setupHandlers();
@@ -80,6 +81,8 @@ class Bot {
         
         self::$api = new \TelegramBot\Api\BotApi(self::$token); 
         self::$api->setCurlOption(CURLOPT_CAINFO, self::$cacert);
+        
+        self::$is_initialized = true;
     }
 
     static protected function setupProperties() {
@@ -128,7 +131,10 @@ class Bot {
     }
 
     static public function run() {
-        self::init();
+        if (!self::$is_initialized) {
+            self::init();
+        }
+        
         if (php_sapi_name() == 'cli') {
             self::standalone();
         } else {
