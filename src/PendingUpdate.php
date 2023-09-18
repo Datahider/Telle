@@ -45,4 +45,11 @@ class PendingUpdate extends \losthost\DB\DBObject {
         }
         parent::__set($name, $value);
     }
+    
+    static function truncate() {
+        
+        $sql = 'TRUNCATE TABLE %TABLE_NAME%';
+        $sth = self::prepare($sql);
+        $sth->execute();
+    }
 }

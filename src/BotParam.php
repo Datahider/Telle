@@ -40,6 +40,13 @@ class BotParam extends \losthost\DB\DBObject {
             }
         }
         
-    }    
+    }   
+    
+    public function __set($name, $value) {
+        parent::__set($name, $value);
+        if ($this->isModified()) {
+            $this->write();
+        }
+    }
     
 }

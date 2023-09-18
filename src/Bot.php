@@ -178,7 +178,27 @@ class Bot {
         return file_get_contents('php://input');
     }
     
+    static protected function truncatePending($truncate_updates_on_startup) {
+        
+        if ($truncate_updates_on_startup->value) {
+            PendingUpdate::truncate();
+            while (1) {
+                $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, 0);
+                if (!$updates) {
+                    break;
+                }
+                $last_update = array_pop($updates);
+                self::$next_update_id->value = $last_update->getUpdateId() + 1;
+            }
+        }
+        
+        $truncate_updates_on_startup->value = '';
+    }
+
     static protected function standalone() {
+        
+        self::$next_update_id = new BotParam('next_update_id', 0);
+        self::truncatePending(new BotParam('truncate_updates_on_startup', ''));
         
         if (self::$workers_count <= 1) {
             self::selfProcessing();
@@ -224,12 +244,10 @@ class Bot {
         }
         
         self::$next_update_id->value = $update->getUpdateId() + 1;
-        self::$next_update_id->write();
     }
 
     static protected function selfProcessing() {
         
-        self::$next_update_id = new BotParam('next_update_id', 0);
         while (1) {
             $updates = self::getUpdates();
             self::processUpdates($updates);
@@ -238,7 +256,6 @@ class Bot {
     
     static protected function workersProcessing() {
         self::startWorkers();
-        self::$next_update_id = new BotParam('next_update_id', 0);
         
         while (1) {
             $updates = self::getUpdates();
@@ -251,19 +268,16 @@ class Bot {
         $free_workers = self::getFreeWorkers();
         
         foreach ($updates as $update) {
-            $worker = array_shift($free_workers);
-            if ($worker === null) {
+            while ( null === $worker = array_shift($free_workers)) {
                 error_log('Waiting for free workers...');
                 sleep(1);
                 $free_workers = self::getFreeWorkers();
-                continue;
             }
             
             new PendingUpdate($update, $worker, self::$max_processing_time);
             self::$workers[$worker]->send($update->getUpdateId());            
         }
         self::$next_update_id->value = $update->getUpdateId() + 1;
-        self::$next_update_id->write();
     }
     
     static protected function getPendingUpdates() {
