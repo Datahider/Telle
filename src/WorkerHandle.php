@@ -37,7 +37,7 @@ class WorkerHandle {
     
     public function send($data, $depth=0) {
 
-        if ($depth == \losthost\telle\Bot::$worker_restart_tryes) {
+        if ($depth == \losthost\telle\Bot::param('worker_restart_tryes', 10)) {
             throw new \Exception("Maximum worker restart tryes count reached.", -10009);
         }
         
@@ -49,7 +49,7 @@ class WorkerHandle {
             $this->send($data, $depth+1);
         } elseif ($result === false) {
             error_log("Can't send data to worker. Sleeping...");
-            sleep(5);
+            sleep(Bot::param('worker_restart_sleep', 5));
             error_log("Restarting...");
             $this->run();
             $this->send($data, $depth+1);

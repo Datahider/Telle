@@ -15,11 +15,6 @@ namespace losthost\telle;
 class Bot {
 
     // Default values. Change via global $config array
-    public static int $worker_restart_tryes = 10;       // number of tryes to restart worker
-    public static int $worker_restart_sleep = 5;        // number of seconds before restart worker
-
-    protected static int $max_processing_time = 15;     // maximum time for worker to process an update
-    protected static int $get_updates_timeout = 40;     // getUpdates timeout parameter
     protected static string $token = '';                // bot token
     
     protected static string $db_host = 'localhost';     // database host
@@ -228,7 +223,7 @@ class Bot {
 
     static protected function tryGetUpdates() {
         try {
-            $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, self::$get_updates_timeout);
+            $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, self::param('get_updates_timeout', 40));
             if ($updates) {
                 return $updates;
             }
@@ -276,7 +271,7 @@ class Bot {
                 $free_workers = self::getFreeWorkers();
             }
             
-            new PendingUpdate($update, $worker, self::$max_processing_time);
+            new PendingUpdate($update, $worker, self::param('max_processing_time', 15));
             self::$workers[$worker]->send($update->getUpdateId());            
         }
         self::$next_update_id->value = $update->getUpdateId() + 1;
