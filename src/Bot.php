@@ -58,7 +58,8 @@ class Bot {
     
     protected static $workers = [];
     protected static $next_update_id;
-    protected static $non_config = [ 'workers', 'api', 'non_config', 'next_update_id', 'handlers', 'trackers' ];
+    protected static $param_cache = [];
+    protected static $non_config = [ 'workers', 'api', 'non_config', 'next_update_id', 'handlers', 'trackers', 'param_cache' ];
 
     public static \TelegramBot\Api\BotApi $api;
     protected static $is_initialized = false;
@@ -189,7 +190,26 @@ class Bot {
     }
 
     static public function param($name, $default) {
-        return (new BotParam($name, $default))->value;
+        if (isset(self::$param_cache[$name])) {
+            $param_data = self::$param_cache[$name];
+            if ($param_data['expires'] > time()) {
+                return $param_data['value'];
+            }
+        }
+        
+        $value = (new BotParam($name, $default))->value;
+        if ($name == 'next_update_id') {
+            return $value;
+        }
+        
+        if ($name == 'param_cache_time') {
+            $expires = time() + $value;
+        } else {
+            $expires = time() + self::param('param_cache_time', 600);
+        }
+        
+        self::$param_cache['name'] = compact('value', 'expires');
+        return $value;
     }
 
     static protected function standalone() {
