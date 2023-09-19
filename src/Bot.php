@@ -208,7 +208,7 @@ class Bot {
             $expires = time() + self::param('param_cache_time', 600);
         }
         
-        self::$param_cache['name'] = compact('value', 'expires');
+        self::$param_cache[$name] = compact('value', 'expires');
         return $value;
     }
 
