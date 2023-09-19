@@ -15,8 +15,6 @@ namespace losthost\telle;
 class Bot {
 
     // Default values. Change via global $config array
-    protected static int $workers_count = 5;            // number of worker processes for standalone mode
-
     public static int $worker_restart_tryes = 10;       // number of tryes to restart worker
     public static int $worker_restart_sleep = 5;        // number of seconds before restart worker
 
@@ -195,12 +193,16 @@ class Bot {
         $truncate_updates_on_startup->value = '';
     }
 
+    static public function param($name, $default) {
+        return (new BotParam($name, $default))->value;
+    }
+
     static protected function standalone() {
         
         self::$next_update_id = new BotParam('next_update_id', 0);
         self::truncatePending(new BotParam('truncate_updates_on_startup', ''));
         
-        if (self::$workers_count <= 1) {
+        if ( self::param('workers_count', 1) <= 1) {
             self::selfProcessing();
         } else {
             self::workersProcessing();
@@ -315,7 +317,8 @@ class Bot {
 
     static protected function startWorkers() {
         
-        for ($index = 0; $index < self::$workers_count; $index++) {
+        $workers_count = self::param('workers_count', 1);
+        for ($index = 0; $index < $workers_count; $index++) {
             
             $wh = new \losthost\telle\WorkerHandle(self::$worker_start_cmd. " $index", $index);
             $wh->run();
