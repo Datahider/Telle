@@ -23,7 +23,7 @@ class BGCron extends AbstractBackgroundProcess {
     
     public function __construct($sleep=null) {
         if ($sleep === null) {
-            $sleep = 1;
+            $sleep = Bot::param('cron_sleep_time', 10);
         }
         $this->sleep = $sleep;
         parent::__construct($sleep);
@@ -35,8 +35,10 @@ class BGCron extends AbstractBackgroundProcess {
         $alive = new DBBotParam('cron_alive', time());
         
         while (1) {
+            if (!Bot::isAlive('bot', Bot::param('bot_alive_timeout', 15))) {
+                die('The bot is not alive.');
+            }
             $alive->value = time();
-            
             $this->initNewJobs();
             $jobs = $this->getJobs();
             $this->runJobs($jobs);
@@ -48,8 +50,9 @@ class BGCron extends AbstractBackgroundProcess {
         $sql = <<<END
                 SELECT id FROM [cron_entries] WHERE next_start_time <= ?
                 END;
-        $jobs = new \losthost\DB\DBView($sql, date_create()->format(\losthost\DB\DB::DATE_FORMAT));
         
+        $now = date_create()->format(\losthost\DB\DB::DATE_FORMAT);
+        $jobs = new \losthost\DB\DBView($sql, $now);
         $ids = [];
         while ($jobs->next()) {
             $ids[] = $jobs->id;

@@ -36,21 +36,22 @@ abstract class AbstractHandler {
         return $this->check_cache; 
     }
 
-    public function handleUpdate(
-            \TelegramBot\Api\Types\CallbackQuery 
-            |\TelegramBot\Api\Types\Message
-            |\TelegramBot\Api\Types\Inline\ChosenInlineResult
-            |\TelegramBot\Api\Types\Inline\InlineQuery
-            |\TelegramBot\Api\Types\Poll
-            |\TelegramBot\Api\Types\PollAnswer
-            |\TelegramBot\Api\Types\Payments\Query\PreCheckoutQuery
-            |\TelegramBot\Api\Types\Payments\Query\ShippingQuery
-            |\TelegramBot\Api\Types\ChatMemberUpdated
-            |\TelegramBot\Api\Types\ChatJoinRequest &$data) : bool {
+    public function handleUpdate(\TelegramBot\Api\BaseType &$data) : bool {
 
         if (!$this->checkUpdate($data)) {
             return false;
         }
         return $this->handle($data);
     }
+    
+    static protected function setPriority(mixed $data) {
+        Env::$session->set(DBSession::FIELD_PRIORITY_HANDLER, static::class);
+        Env::$session->set('data', $data);
+    }
+    
+    static public function unsetPriority() {
+        Env::$session->set(DBSession::FIELD_PRIORITY_HANDLER, null);
+        Env::$session->set('data', $data);
+    }
+    
 }

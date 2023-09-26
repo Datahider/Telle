@@ -66,6 +66,7 @@ class Bot {
     
     protected static $workers = [];
     protected static $next_update_id;
+    protected static $bot_alive;
     protected static $param_cache = [];
     protected static $non_config = [ 'workers', 'api', 'non_config', 'next_update_id', 'handlers', 'trackers', 'param_cache' ];
 
@@ -188,10 +189,28 @@ class Bot {
                 throw new Exception("Unknown update type.");
         }
     }
-    
+
+    static protected function processPriorityHandler($data) {
+        if (Env::$session->priority_handler) {
+            $priority_handler = new (Env::$session->priority_handler)();
+            $priority_handler->initHandler();
+            
+            try {
+                if ($priority_handler->checkUpdate($data)) {
+                    return $priority_handler->handleUpdate($data);
+                }
+            } catch (\Exception $ex) {
+                $priority_handler->unsetPriority();
+                return false;
+            } catch (\TypeError $ex) {
+                $priority_handler->unsetPriority();
+                return false;
+            }
+        }
+    }
+
     static public function processHandlers(\TelegramBot\Api\Types\Update &$update, array|null $handlers=null) {
         
-        $processed = false;
         if ($handlers === null) {
             Env::load($update);
             $handlers = self::$handlers[Env::$update_type];
@@ -200,6 +219,7 @@ class Bot {
         $data = self::getUpdateData($update);
             
         try {
+            $processed = self::processPriorityHandler($data);
             foreach ($handlers as $handler) {
                 
                 $handler->initHandler();
@@ -236,6 +256,17 @@ class Bot {
         $truncate_updates_on_startup->value = '';
     }
 
+    static public function isAlive($who, $timeout=60) {
+        $name = $who. "_alive";
+        $last_alive = self::param($name, 0);
+        $now = time();
+
+        if ($last_alive < $now-$timeout) {
+            return false;
+        }
+        return true;
+    }
+
     static public function param($name, $default) {
         if (isset(self::$param_cache[$name])) {
             $param_data = self::$param_cache[$name];
@@ -245,7 +276,7 @@ class Bot {
         }
         
         $value = (new DBBotParam($name, $default))->value;
-        if ($name == 'next_update_id') {
+        if ($name == 'next_update_id' || preg_match("/_alive$/", $name)) {
             return $value;
         }
         
@@ -262,6 +293,8 @@ class Bot {
     static protected function standalone() {
         
         self::$next_update_id = new DBBotParam('next_update_id', 0);
+        self::$bot_alive = new DBBotParam('bot_alive', time());
+        
         self::truncatePending(new DBBotParam('truncate_updates_on_startup', ''));
         
         if ( self::param('workers_count', 1) <= 1) {
@@ -289,8 +322,13 @@ class Bot {
     }
 
     static protected function tryGetUpdates() {
+        self::$bot_alive->value = time();
+        if (!self::isAlive('cron', self::param('cron_alive_timeout', 60))) {
+            self::startCron();
+        }
+        
         try {
-            $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, self::param('get_updates_timeout', 40));
+            $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, self::param('get_updates_timeout', 10));
             if ($updates) {
                 return $updates;
             }
@@ -320,7 +358,6 @@ class Bot {
     
     static protected function backgroundProcessing() {
         self::startWorkers();
-        self::startCron();
         
         while (1) {
             $updates = self::getUpdates();

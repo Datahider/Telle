@@ -28,11 +28,7 @@ class HandlerCallback extends AbstractHandlerCallback {
 
     protected function handle(\TelegramBot\Api\Types\CallbackQuery &$callback_query) : bool {
 
-        Bot::$api->sendMessage(
-            Env::$chat->id,
-            'You have pressed <b>'. $callback_query->getData(). '</b> button.',
-            'HTML'
-        );
+        HandlerMessageAfterButton::showPrompt($callback_query->getMessage()->getMessageId());
 
         try {
             Bot::$api->answerCallbackQuery($callback_query->getId(), 'Put additional info here.');
