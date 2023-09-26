@@ -12,7 +12,7 @@ namespace losthost\telle;
  *
  * @author drweb
  */
-class CallbackHandler extends Handler {
+class HandlerCallback extends AbstractHandlerCallback {
 
     public function isFinal() : bool {
         return false;
@@ -22,17 +22,15 @@ class CallbackHandler extends Handler {
         // nothing to
     }
     
-    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
-        $callback_query = $update->getCallbackQuery();
+    protected function check(\TelegramBot\Api\Types\CallbackQuery &$callback_query) : bool {
         return (bool)$callback_query;
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
-        $callback_query = $update->getCallbackQuery();
+    protected function handle(\TelegramBot\Api\Types\CallbackQuery &$callback_query) : bool {
 
         Bot::$api->sendMessage(
-            $update->getCallbackQuery()->getMessage()->getChat()->getId(),
-            'You have pressed <b>'. $update->getCallbackQuery()->getData(). '</b> button.',
+            Env::$chat->id,
+            'You have pressed <b>'. $callback_query->getData(). '</b> button.',
             'HTML'
         );
 

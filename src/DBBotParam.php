@@ -12,7 +12,7 @@ namespace losthost\telle;
  *
  * @author drweb_000
  */
-class BotParam extends \losthost\DB\DBObject {
+class DBBotParam extends \losthost\DB\DBObject {
 
     const TABLE_NAME = 'bot_params';
     

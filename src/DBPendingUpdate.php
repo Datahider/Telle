@@ -2,7 +2,7 @@
 
 namespace losthost\telle;
 
-class PendingUpdate extends \losthost\DB\DBObject {
+class DBPendingUpdate extends \losthost\DB\DBObject {
     
     const TABLE_NAME = 'pending_updates';
     

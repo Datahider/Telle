@@ -12,7 +12,7 @@ namespace losthost\telle;
  *
  * @author drweb
  */
-class EchoHandler extends Handler {
+class HandlerEcho extends AbstractHandlerMessage {
 
     public function isFinal() : bool {
         return false;
@@ -22,17 +22,16 @@ class EchoHandler extends Handler {
         // nothing to
     }
 
-    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
-        $message = $update->getMessage();
+    protected function check(\TelegramBot\Api\Types\Message &$message) : bool {
         if (!$message) {
             return false;
         }
         return (bool)$message->getText();
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
+    protected function handle(\TelegramBot\Api\Types\Message &$message) : bool {
         
-        $text = $update->getMessage()->getText();
+        $text = $message->getText();
         if ($text == 'ping') {
             
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup([
@@ -40,7 +39,7 @@ class EchoHandler extends Handler {
             ]);
             
             Bot::$api->sendMessage(
-                $update->getMessage()->getChat()->getId(),
+                Env::$chat->id,
                 "pong",
                 "HTML",
                 false,
@@ -49,7 +48,7 @@ class EchoHandler extends Handler {
             );
         } else {
             Bot::$api->sendMessage(
-                $update->getMessage()->getChat()->getId(),
+                Env::$chat->id,
                 "Your message: $text\nTry to send <b>ping</b>",
                 "HTML"
             );

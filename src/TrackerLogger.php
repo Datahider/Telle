@@ -12,11 +12,11 @@ namespace losthost\telle;
  *
  * @author drweb
  */
-class LoggerTracker extends \losthost\DB\DBTracker {
+class TrackerLogger extends \losthost\DB\DBTracker {
    
     public function track(\losthost\DB\DBEvent $event) {
         $event_type = $event->typeName($event->type);
         $class = get_class($event->object);
-        error_log("LoggerTracker: Event $event_type came from $class.");
+        error_log("TrackerLogger: Event $event_type came from $class.");
     }
 }

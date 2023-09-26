@@ -12,19 +12,23 @@ namespace losthost\telle;
  *
  * @author drweb_000
  */
-class Worker {
+class BGWorker extends AbstractBackgroundProcess {
     
     protected $id;
     protected $init;
     
     protected $handlers;
 
-    public function __construct($id) {
+    public function __construct($id=null) {
 
+        if ( $id === null ) {
+            $id = 0;
+        }
         $this->id = $id;
         
         Bot::$api->setCurlOption(CURLOPT_CAINFO, Bot::getCaInfo());
         $this->init = false;
+        
     }
 
     public function init() {
@@ -57,7 +61,7 @@ class Worker {
             die("Worker $this->id: Can't read next update. Dieing.\n");
         }
         
-        return new PendingUpdate((int)$line);
+        return new DBPendingUpdate((int)$line);
     }
     
 }

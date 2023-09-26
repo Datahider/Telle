@@ -12,7 +12,7 @@ namespace losthost\telle;
  *
  * @author drweb
  */
-class FinalHandler extends Handler {
+class HandlerFinal extends AbstractHandlerMessage {
 
     protected function init() : void {
         // nothing to
@@ -22,17 +22,16 @@ class FinalHandler extends Handler {
         return true;
     }
     
-    protected function check(\TelegramBot\Api\Types\Update &$update) : bool {
-        $message = $update->getMessage();
+    protected function check(\TelegramBot\Api\Types\Message &$message) : bool {
         if (!$message) {
             return false;
         }
         return (bool)$message->getText();
     }
 
-    protected function handle(\TelegramBot\Api\Types\Update &$update) : bool {
+    protected function handle(\TelegramBot\Api\Types\Message &$message) : bool {
         Bot::$api->sendMessage(
-            $update->getMessage()->getChat()->getId(),
+            Env::$chat->id,
             'Final handlers are always called.',
         );
         
