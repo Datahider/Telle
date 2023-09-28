@@ -12,7 +12,7 @@ namespace losthost\telle;
  *
  * @author drweb_000
  */
-class BGWorker extends AbstractBackgroundProcess {
+class BGWorker extends abst\AbstractBackgroundProcess {
     
     protected $id;
     protected $init;

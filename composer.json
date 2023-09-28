@@ -9,7 +9,7 @@
     ],
     "require": {
         "telegram-bot/api": "2.6.x-dev",
-        "losthost/db": ">=v1.6.1",
+        "losthost/db": "dev-main",
         "php": ">=8.1.1",
         "dragonmantank/cron-expression": "v3.3.3"
     },

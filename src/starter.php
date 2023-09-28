@@ -5,7 +5,7 @@ namespace losthost\telle;
 require_once "vendor/autoload.php";
 require_once 'etc/config-defaults.php';
 
-Bot::init();
+Bot::setup();
 
 $process_class = $argv[1];
 

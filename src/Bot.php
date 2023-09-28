@@ -4,8 +4,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/PHPClass.php to edit this template
  */
-
 namespace losthost\telle;
+
+require_once 'globals.php';
 
 /**
  * Description of Bot
@@ -14,128 +15,111 @@ namespace losthost\telle;
  */
 class Bot {
 
-    // Default values. Change via global $config array
-    protected static string $token = '';                // bot token
-    
-    protected static string $db_host = 'localhost';     // database host
-    protected static string $db_user = '';              // database user
-    protected static string $db_pass = '';              // database password
-    protected static string $db_name = '';              // database name
-    protected static string $db_prefix = 'telle_';      // database table prefix
-    
-    // path to the cacert file for curl                 //
-    protected static string $cacert = __DIR__. '/cacert.pem';
-
-    // command to start worker process in background    //
-    protected static string $starter = 'start /b php '. __DIR__. '/starter.php %s %s'; // Windows
-    //protected static string $starter = 'php '. __DIR__. '/starter.php %s %s >/dev/null 2>&1 &'; // *nix
-    protected static $worker_class = '\\losthost\\telle\\BGWorker';
-    protected static $cron_class = '\\losthost\\telle\\BGCron';
-    protected static $cron_process;
-
-    protected static $handlers = [                  // array of Handlers. Override by global $trackers 
-        
-        Env::UT_MESSAGE => [
-            '\\losthost\\telle\\HandlerMessageLogger',      // Logs text messages to error log
-            '\\losthost\\telle\\HandlerCommandStart',       // Handles /start command
-            '\\losthost\\telle\\HandlerEcho',               // Sends echo text back to user
-            '\\losthost\\telle\\HandlerFinal',              // Sends final message
-        ],
-        Env::UT_CALLBACK_QUERY => [
-            '\\losthost\\telle\\HandlerCallback',           // Handles callback queries
-            '\\losthost\\telle\\HandlerFinalCallback',      // This is for non-text updates
-        ],
-    ];  
-    
-    protected static $trackers = [                  // Array of DBTrackers. Override by global $trackers
-        \losthost\telle\TrackerLogger::class => [   // Class name as array key
-            'events' => [                               // Use \losthost\DB\DBEvent::ALL_EVENTS for all
-                \losthost\DB\DBEvent::AFTER_INSERT,
-                \losthost\DB\DBEvent::AFTER_UPDATE,
-                \losthost\DB\DBEvent::AFTER_DELETE,
-            ],
-            'objects' => [                              // Use '*' for all
-                DBBotParam::class, 
-                DBPendingUpdate::class,
-            ],
-                                                        // Add more if you need
-        ]
-    ];
-    /// End of config 
-    
-    
-    protected static $workers = [];
-    protected static $next_update_id;
-    protected static $bot_alive;
-    protected static $param_cache = [];
-    protected static $non_config = [ 'workers', 'api', 'non_config', 'next_update_id', 'handlers', 'trackers', 'param_cache' ];
-
     public static \TelegramBot\Api\BotApi $api;
+
+    const UT_CALLBACK_QUERY         = 'callback_query';
+    const UT_CHANNEL_POST           = 'channel_post';
+    const UT_CHOSEN_INLINE_RELULT   = 'chosen_inline_result';
+    const UT_EDITED_CHANNEL_POST    = 'edited_channel_post';
+    const UT_EDITED_MESSAGE         = 'edited_message';
+    const UT_INLINE_QUERY           = 'inline_query';
+    const UT_MESSAGE                = 'message';
+    const UT_POLL                   = 'poll';
+    const UT_POLL_ANSWER            = 'poll_answer';
+    const UT_PRE_CHECKOUT_QUERY     = 'pre_checkout_query';
+    const UT_SHIPPING_QUERY         = 'shipping_query';
+    const UT_MY_CHAT_MEMBER         = 'my_chat_member';
+    const UT_CHAT_MEMBER            = 'chat_member';
+    const UT_CHAT_JOIN_REQUEST      = 'chat_join_request';
+
+    const BG_STARTER_WINDOWS        = 'start /b php '. __DIR__. '/starter.php %s %s';
+    const BG_STARTER_UNIX           = 'php '. __DIR__. '/starter.php %s %s >/dev/null 2>&1 &';
+
+    protected static $handlers      = [];  
+    protected static $workers       = [];
+    protected static $param_cache   = [];
+
+    protected static $dbbp_next_update_id;
+    protected static $dbbp_bot_alive;
+    
     protected static $is_initialized = false;
-
-    static public function init() {
-        
-        self::setupProperties();
-        self::setupHandlers();
-        self::setupTrackers();
-
-        \losthost\DB\DB::connect(self::$db_host, self::$db_user, self::$db_pass, self::$db_name, self::$db_prefix);
-        
-        self::$api = new \TelegramBot\Api\BotApi(self::$token); 
-        self::$api->setCurlOption(CURLOPT_CAINFO, self::$cacert);
-        
+    
+    /**
+     * Setups Bot. Must be called before run()
+     */
+    static public function setup() {
+        if (!file_exists('etc/bot_config.php')) {
+            throw new \Exception(<<<END
+                Config file etc/bot_config.php is not found.
+                The file must contain:
+                    \$token      = 'The_bot:token_received_from_BotFather';
+                    \$ca_cert    = 'Path to cacert.pem';
+                    \$db_host    = 'your.database.host';
+                    \$db_user    = 'db_username';
+                    \$db_pass    = 'Db-PAssWorD';
+                    \$db_name    = 'database_name';
+                    \$db_prefix  = 'table_prefix_';
+                    
+                END);
+        }
+        require 'etc/bot_config.php';
+        self::setupApi($token, $ca_cert);
+        self::setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix);
         self::$is_initialized = true;
     }
-
-    static protected function setupProperties() {
-        global $config;
-        
-        foreach ($config as $key => $value) {
-            if (array_search($key, self::$non_config)) {
-                throw new \Exception("Can't change \$$key via global \$config.");
-            }
-            
-            if (property_exists('\losthost\telle\Bot', $key)) {
-                self::$$key = $value;
-            }
-        }
+    
+    static protected function setupApi($token,  $ca_cert) {
+        self::$api = new \TelegramBot\Api\BotApi($token); 
+        self::$api->setCurlOption(CURLOPT_CAINFO, $ca_cert);
     }
     
-    static protected function setupHandlers() {
-        global $handlers;
-        
-        if (isset($handlers) && is_array($handlers)) {
-            self::$handlers = $handlers;
-        }
-
-        foreach (self::$handlers as $key => $handlers) {
-            foreach ($handlers as $index => $class) {
-                if (!is_a($class, '\\losthost\\telle\\AbstractHandler', true)) {
-                    throw new \Exception('$handlers must ba an associative array of \\losthost\\telle\\AbstractHandler descendants arrays.');
-                }
-                self::$handlers[$key][$index] = new $class();
-            }
-        }
+    static protected function setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix) {
+        \losthost\DB\DB::connect($db_host, $db_user, $db_pass, $db_name, $db_prefix);
     }
-    
-    static protected function setupTrackers() {
-        global $trackers;
-        
-        if (isset($trackers) && is_array($trackers)) {
-            self::$trackers = $trackers;
-        }
-        
-        foreach (self::$trackers as $tracker => $data ) {
-            if (!is_a($tracker, '\\losthost\\DB\\DBTracker', true)) {
-                throw new \Exception('$trackers must ba an array of \\losthost\\DB\\DBTracker descendants.');
-            }
-            \losthost\DB\DB::addTracker($data['events'], $data['objects'], new $tracker());
+
+    /**
+     * Adds a handler to Bot's array of handlers
+     * Each handler will be called depending on update type one by one
+     * until a handle(...) function return true.
+     * After that only final handlers (which ::isFinal() returns true) will be called
+     * 
+     * @param string $handler_class_name
+     */
+    static public function addHandler(string $handler_class_name) {
+        if (is_a($handler_class_name, abst\AbstractHandlerCallback::class, true)) {
+            self::$handlers[self::UT_CALLBACK_QUERY][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerChannelPost::class, true)) {
+            self::$handlers[self::UT_CHANNEL_POST][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerChatJoinRequest::class, true)) {
+            self::$handlers[self::UT_CHAT_JOIN_REQUEST][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerChatMember::class, true)) {
+            self::$handlers[self::UT_CHAT_MEMBER][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerChosenInlineResult::class, true)) {
+            self::$handlers[self::UT_CHOSEN_INLINE_RELULT][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerEditedChannelPost::class, true)) {
+            self::$handlers[self::UT_EDITED_CHANNEL_POST][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerEditedMessage::class, true)) {
+            self::$handlers[self::UT_EDITED_MESSAGE][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerInlineQuery::class, true)) {
+            self::$handlers[self::UT_INLINE_QUERY][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerMessage::class, true)) {
+            self::$handlers[self::UT_MESSAGE][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerMyChatMember::class, true)) {
+            self::$handlers[self::UT_MY_CHAT_MEMBER][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerPoll::class, true)) {
+            self::$handlers[self::UT_POLL][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerPollAnswer::class, true)) {
+            self::$handlers[self::UT_POLL_ANSWER][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerPreCheckoutQuery::class, true)) {
+            self::$handlers[self::UT_PRE_CHECKOUT_QUERY][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerShippingQuery::class, true)) {
+            self::$handlers[self::UT_SHIPPING_QUERY][] = $handler_class_name;
         }
     }
 
     static public function run() {
         if (!self::$is_initialized) {
-            self::init();
+            throw new Exception("Please setup Bot via Bot::setup(...)");
         }
         
         if (php_sapi_name() == 'cli') {
@@ -145,6 +129,9 @@ class Bot {
         }
     }
     
+    /**
+     * Handles requests in web-server mode (callback)
+     */
     static protected function handle() {
         $data = \TelegramBot\Api\BotApi::jsonValidate(self::getRawBody(), true);
         $updates = \TelegramBot\Api\Types\ArrayOfUpdates::fromResponse($data);
@@ -155,35 +142,55 @@ class Bot {
         }
     }
     
+    /**
+     * Prepares internal vars and runs processing depending on workers_count
+     * @throws \Exception if main loop finishes
+     */
+    static protected function standalone() {
+        
+        self::$dbbp_next_update_id = new model\DBBotParam('next_update_id', 0);
+        self::$dbbp_bot_alive = new model\DBBotParam('bot_alive', time());
+        
+        self::truncatePending(new model\DBBotParam('truncate_updates_on_startup', ''));
+        
+        if ( self::param('workers_count', 1) <= 1) {
+            self::selfProcessing();
+        } else {
+            self::backgroundProcessing();
+        }
+        
+        throw new \Exception("Standalone process finished unexpectedly.");
+    }
+
     static function getUpdateData(\TelegramBot\Api\Types\Update &$update) {
         switch (Env::$update_type) {
-            case Env::UT_CALLBACK_QUERY:
+            case self::UT_CALLBACK_QUERY:
                 return $update->getCallbackQuery();
-            case Env::UT_CHANNEL_POST:
+            case self::UT_CHANNEL_POST:
                 return $update->getChannelPost();
-            case Env::UT_CHAT_JOIN_REQUEST:
+            case self::UT_CHAT_JOIN_REQUEST:
                 return $update->getChatJoinRequest();
-            case Env::UT_CHAT_MEMBER:
+            case self::UT_CHAT_MEMBER:
                 return $update->getChatMember();
-            case Env::UT_CHOSEN_INLINE_RELULT:
+            case self::UT_CHOSEN_INLINE_RELULT:
                 return $update->getChosenInlineResult();
-            case Env::UT_EDITED_CHANNEL_POST:
+            case self::UT_EDITED_CHANNEL_POST:
                 return $update->getEditedChannelPost();
-            case Env::UT_EDITED_MESSAGE:
+            case self::UT_EDITED_MESSAGE:
                 return $update->getEditedMessage();
-            case Env::UT_INLINE_QUERY:
+            case self::UT_INLINE_QUERY:
                 return $update->getInlineQuery();
-            case Env::UT_MESSAGE:
+            case self::UT_MESSAGE:
                 return $update->getMessage();
-            case Env::UT_MY_CHAT_MEMBER:
+            case self::UT_MY_CHAT_MEMBER:
                 return $update->getMyChatMember();
-            case Env::UT_POLL:
+            case self::UT_POLL:
                 return $update->getPoll();
-            case Env::UT_POLL_ANSWER:
+            case self::UT_POLL_ANSWER:
                 return $update->getPollAnswer();
-            case Env::UT_PRE_CHECKOUT_QUERY:
+            case self::UT_PRE_CHECKOUT_QUERY:
                 return $update->getPreCheckoutQuery();
-            case Env::UT_SHIPPING_QUERY:
+            case self::UT_SHIPPING_QUERY:
                 return $update->getShippingQuery();
             default:
                 throw new Exception("Unknown update type.");
@@ -220,8 +227,9 @@ class Bot {
             
         try {
             $processed = self::processPriorityHandler($data);
-            foreach ($handlers as $handler) {
+            foreach ($handlers as $handler_class_name) {
                 
+                $handler = new $handler_class_name();
                 $handler->initHandler();
                 if ((!$processed || $handler->isFinal()) && $handler->checkUpdate($data)) {
                     $processed = $handler->handleUpdate($data);
@@ -244,12 +252,12 @@ class Bot {
         if ($truncate_updates_on_startup->value) {
             DBPendingUpdate::truncate();
             while (1) {
-                $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, 0);
+                $updates = Bot::$api->getUpdates(self::$dbbp_next_update_id->value, 100, 0);
                 if (!$updates) {
                     break;
                 }
                 $last_update = array_pop($updates);
-                self::$next_update_id->value = $last_update->getUpdateId() + 1;
+                self::$dbbp_next_update_id->value = $last_update->getUpdateId() + 1;
             }
         }
         
@@ -275,7 +283,7 @@ class Bot {
             }
         }
         
-        $value = (new DBBotParam($name, $default))->value;
+        $value = (new model\DBBotParam($name, $default))->value;
         if ($name == 'next_update_id' || preg_match("/_alive$/", $name)) {
             return $value;
         }
@@ -288,22 +296,6 @@ class Bot {
         
         self::$param_cache[$name] = compact('value', 'expires');
         return $value;
-    }
-
-    static protected function standalone() {
-        
-        self::$next_update_id = new DBBotParam('next_update_id', 0);
-        self::$bot_alive = new DBBotParam('bot_alive', time());
-        
-        self::truncatePending(new DBBotParam('truncate_updates_on_startup', ''));
-        
-        if ( self::param('workers_count', 1) <= 1) {
-            self::selfProcessing();
-        } else {
-            self::backgroundProcessing();
-        }
-        
-        throw new \Exception("Standalone process finished unexpectedly.");
     }
 
     static protected function getUpdates() {
@@ -322,13 +314,13 @@ class Bot {
     }
 
     static protected function tryGetUpdates() {
-        self::$bot_alive->value = time();
+        self::$dbbp_bot_alive->value = time();
         if (!self::isAlive('cron', self::param('cron_alive_timeout', 60))) {
             self::startCron();
         }
         
         try {
-            $updates = Bot::$api->getUpdates(self::$next_update_id->value, 100, self::param('get_updates_timeout', 10));
+            $updates = Bot::$api->getUpdates(self::$dbbp_next_update_id->value, 100, self::param('get_updates_timeout', 10));
             if ($updates) {
                 return $updates;
             }
@@ -345,7 +337,7 @@ class Bot {
             self::processHandlers($update);
         }
         
-        self::$next_update_id->value = $update->getUpdateId() + 1;
+        self::$dbbp_next_update_id->value = $update->getUpdateId() + 1;
     }
 
     static protected function selfProcessing() {
@@ -379,7 +371,7 @@ class Bot {
             new DBPendingUpdate($update, $worker, self::param('max_processing_time', 15));
             self::$workers[$worker]->send($update->getUpdateId());            
         }
-        self::$next_update_id->value = $update->getUpdateId() + 1;
+        self::$dbbp_next_update_id->value = $update->getUpdateId() + 1;
     }
     
     static protected function getPendingUpdates() {
@@ -415,21 +407,40 @@ class Bot {
         return $free_workers;
     }
 
-    static public function startClass($class, $param='', $mode='w') {
-        $start_cmd = sprintf(self::$starter, $class, $param);
+    /**
+     * Starts background execution of an AbstractBackgroundProcess descendant
+     * @param string $class - A class name
+     * @param string $param - A parameter to pass to the class constructor
+     * @param string $mode  - mode of the opening handle ('r' or 'w' - the default)
+     * @return resource
+     */
+    static public function startClass(string $class, string $param='', string $mode='w') {
+        if (preg_match("/^Windows/", php_uname('s'))) {
+            $starter = self::BG_STARTER_WINDOWS;
+        } else {
+            $starter = self::BG_STARTER_UNIX;
+        }
+        
+        $start_cmd = sprintf($starter, $class, $param);
         return popen($start_cmd, $mode);
     }
 
     static protected function startCron() {
-        self::$cron_process = self::startClass(self::$cron_class);
+        self::startClass(BGCron::class);
     }
 
     static protected function startWorkers() {
         
+        if (php_uname('s') === 'Windows') {
+            $starter = self::BG_STARTER_WINDOWS;
+        } else {
+            $starter = self::BG_STARTER_UNIX;
+        }
+
         $workers_count = self::param('workers_count', 1);
         for ($index = 0; $index < $workers_count; $index++) {
             
-            $worker_start_cmd = sprintf(self::$starter, self::$worker_class, $index);
+            $worker_start_cmd = sprintf($starter, BGWorker::class, $index);
             $wh = new \losthost\telle\WorkerHandle($worker_start_cmd, $index);
             $wh->run();
             

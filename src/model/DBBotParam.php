@@ -1,0 +1,52 @@
+<?php
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/PHPClass.php to edit this template
+ */
+
+namespace losthost\telle\model;
+
+/**
+ * Description of BotParam
+ *
+ * @author drweb_000
+ */
+class DBBotParam extends \losthost\DB\DBObject {
+
+    const TABLE_NAME = 'telle_bot_params';
+    
+    const SQL_CREATE_TABLE = <<<END
+            CREATE TABLE IF NOT EXISTS %TABLE_NAME% (
+                name varchar(100) NOT NULL,
+                value varchar(256),
+                PRIMARY KEY (name)
+            ) COMMENT = 'v1.0.0'
+            END;
+    
+    public function __construct($name, $default=null) {
+        parent::__construct('name = ?', $name, true);
+        if ($this->isNew()) {
+            $this->name = $name;
+            $this->value = $default;
+            $this->write();
+            return;
+        } 
+        
+        if ($this->value === null) {
+            $this->value = $default;
+            if ($this->isModified()) {
+                $this->write();
+            }
+        }
+        
+    }   
+    
+    public function __set($name, $value) {
+        parent::__set($name, $value);
+        if ($this->isModified()) {
+            $this->write();
+        }
+    }
+    
+}

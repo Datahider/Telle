@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1a79dad7abab1611498ca3891fd8ead5",
+    "content-hash": "26fa6ae09f48310a01a7ce1059dd759a",
     "packages": [
         {
             "name": "dragonmantank/cron-expression",
@@ -69,22 +69,23 @@
         },
         {
             "name": "losthost/db",
-            "version": "v1.6.1",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Datahider/DB.git",
-                "reference": "6283e780c62d25402f50d8b818f2ede6e184b0b8"
+                "reference": "1f1197f71dd7ff190b0f7e13a87775e97f233c6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/DB/zipball/6283e780c62d25402f50d8b818f2ede6e184b0b8",
-                "reference": "6283e780c62d25402f50d8b818f2ede6e184b0b8",
+                "url": "https://api.github.com/repos/Datahider/DB/zipball/1f1197f71dd7ff190b0f7e13a87775e97f233c6c",
+                "reference": "1f1197f71dd7ff190b0f7e13a87775e97f233c6c",
                 "shasum": ""
             },
             "require": {
                 "losthost/self-testing-suite": ">=1.1.0",
                 "php": ">=8.2.10"
             },
+            "default-branch": true,
             "type": "class",
             "autoload": {
                 "psr-4": {
@@ -111,9 +112,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Datahider/DB/issues",
-                "source": "https://github.com/Datahider/DB/tree/v1.6.1"
+                "source": "https://github.com/Datahider/DB/tree/main"
             },
-            "time": "2023-09-25T16:40:05+00:00"
+            "time": "2023-09-28T16:32:05+00:00"
         },
         {
             "name": "losthost/self-testing-suite",
@@ -277,7 +278,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "telegram-bot/api": 20
+        "telegram-bot/api": 20,
+        "losthost/db": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

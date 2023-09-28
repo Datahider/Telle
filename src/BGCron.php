@@ -12,7 +12,7 @@ namespace losthost\telle;
  *
  * @author drweb
  */
-class BGCron extends AbstractBackgroundProcess {
+class BGCron extends abst\AbstractBackgroundProcess {
     
     const JOB_RESULT_OK = 'ok';
     const JOB_RESULT_ERROR = 'error';
@@ -27,12 +27,12 @@ class BGCron extends AbstractBackgroundProcess {
         }
         $this->sleep = $sleep;
         parent::__construct($sleep);
-        DBCronEntry::initDataStructure();
+        model\DBCronEntry::initDataStructure();
     }
 
     public function run() {
         
-        $alive = new DBBotParam('cron_alive', time());
+        $alive = new model\DBBotParam('cron_alive', time());
         
         while (1) {
             if (!Bot::isAlive('bot', Bot::param('bot_alive_timeout', 15))) {
@@ -48,7 +48,7 @@ class BGCron extends AbstractBackgroundProcess {
     
     public function getJobs() : array {
         $sql = <<<END
-                SELECT id FROM [cron_entries] WHERE next_start_time <= ?
+                SELECT id FROM [telle_cron_entries] WHERE next_start_time <= ?
                 END;
         
         $now = date_create()->format(\losthost\DB\DB::DATE_FORMAT);
@@ -83,7 +83,7 @@ class BGCron extends AbstractBackgroundProcess {
     
     public function runJobs(array $jobs) {
         foreach ($jobs as $job_id) {
-            $job = new DBCronEntry($job_id);
+            $job = new model\DBCronEntry($job_id);
             if (class_exists($job->job_class)) {
                 $this->startJob($job);
             } else {
@@ -103,7 +103,7 @@ class BGCron extends AbstractBackgroundProcess {
         $jobs_to_init = new \losthost\DB\DBView($sql);
         
         while ($jobs_to_init->next()) {
-            $job = new DBCronEntry($jobs_to_init->id);
+            $job = new model\DBCronEntry($jobs_to_init->id);
             $job->write();
         }
     }
