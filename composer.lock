@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26fa6ae09f48310a01a7ce1059dd759a",
+    "content-hash": "e8759f898cbb36571f7a8b885dafd846",
     "packages": [
         {
             "name": "dragonmantank/cron-expression",
@@ -69,23 +69,22 @@
         },
         {
             "name": "losthost/db",
-            "version": "dev-main",
+            "version": "v1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Datahider/DB.git",
-                "reference": "1f1197f71dd7ff190b0f7e13a87775e97f233c6c"
+                "reference": "8dbf40f73b9c914579989263cd1fca9a7775b847"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/DB/zipball/1f1197f71dd7ff190b0f7e13a87775e97f233c6c",
-                "reference": "1f1197f71dd7ff190b0f7e13a87775e97f233c6c",
+                "url": "https://api.github.com/repos/Datahider/DB/zipball/8dbf40f73b9c914579989263cd1fca9a7775b847",
+                "reference": "8dbf40f73b9c914579989263cd1fca9a7775b847",
                 "shasum": ""
             },
             "require": {
                 "losthost/self-testing-suite": ">=1.1.0",
                 "php": ">=8.2.10"
             },
-            "default-branch": true,
             "type": "class",
             "autoload": {
                 "psr-4": {
@@ -112,9 +111,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Datahider/DB/issues",
-                "source": "https://github.com/Datahider/DB/tree/main"
+                "source": "https://github.com/Datahider/DB/tree/v1.6.2"
             },
-            "time": "2023-09-28T16:32:05+00:00"
+            "time": "2023-10-06T10:50:46+00:00"
         },
         {
             "name": "losthost/self-testing-suite",
@@ -159,12 +158,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/TelegramBot/Api.git",
-                "reference": "903df6b34c1556d4041c698c7e260a03d6862204"
+                "reference": "fcc024143015fbb522ae602f307cdd562833befb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TelegramBot/Api/zipball/903df6b34c1556d4041c698c7e260a03d6862204",
-                "reference": "903df6b34c1556d4041c698c7e260a03d6862204",
+                "url": "https://api.github.com/repos/TelegramBot/Api/zipball/fcc024143015fbb522ae602f307cdd562833befb",
+                "reference": "fcc024143015fbb522ae602f307cdd562833befb",
                 "shasum": ""
             },
             "require": {
@@ -173,9 +172,23 @@
                 "php": ">=5.5.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.16",
+                "friendsofphp/php-cs-fixer": "~3.28.0",
+                "guzzlehttp/guzzle": "^7.0",
+                "php-http/multipart-stream-builder": "^1.0",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0",
+                "symfony/http-client": "^4.3 | ^5.0 | ^6.0",
+                "symfony/mime": "^4.3 | ^5.0 | ^6.0",
                 "symfony/phpunit-bridge": "*",
                 "vimeo/psalm": "^5.9"
+            },
+            "suggest": {
+                "guzzlehttp/guzzle": "To use guzzlehttp/guzzle psr implementation",
+                "php-http/multipart-stream-builder": "To use psr/http-client",
+                "psr/http-client": "To use psr/http-client",
+                "psr/http-factory": "To use psr/http-client",
+                "symfony/http-client": "To use symfony/http-client",
+                "symfony/mime": "To use symfony/http-client"
             },
             "default-branch": true,
             "type": "library",
@@ -213,7 +226,7 @@
                 "issues": "https://github.com/TelegramBot/Api/issues",
                 "source": "https://github.com/TelegramBot/Api/tree/master"
             },
-            "time": "2023-09-05T09:55:30+00:00"
+            "time": "2023-09-29T10:23:04+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -278,8 +291,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "telegram-bot/api": 20,
-        "losthost/db": 20
+        "telegram-bot/api": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
