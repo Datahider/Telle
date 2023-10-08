@@ -78,6 +78,8 @@ class Bot {
     
     static protected function setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix) {
         \losthost\DB\DB::connect($db_host, $db_user, $db_pass, $db_name, $db_prefix);
+        model\DBPendingUpdate::initDataStructure();
+        model\DBCronEntry::initDataStructure();
     }
 
     /**
@@ -459,14 +461,14 @@ class Bot {
             SELECT 
                 worker
             FROM 
-                [pending_updates]
+                [telle_pending_updates]
             WHERE 
                 locked_till > ?
             END;
     
     const SQL_GET_UNPROCESSED_UPDATES = <<<END
             SELECT id
-            FROM [pending_updates]
+            FROM [telle_pending_updates]
             WHERE locked_till < ?
             ORDER BY id ASC
             END;

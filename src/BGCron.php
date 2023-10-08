@@ -98,7 +98,7 @@ class BGCron extends abst\AbstractBackgroundProcess {
     
     public function initNewJobs() {
         $sql = <<<END
-                SELECT id FROM [cron_entries] WHERE next_start_time IS NULL
+                SELECT id FROM [telle_cron_entries] WHERE next_start_time IS NULL
                 END;
         $jobs_to_init = new \losthost\DB\DBView($sql);
         
