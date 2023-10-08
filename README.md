@@ -6,7 +6,7 @@ Also it has its own cron sheduler which allows to start AbstractBackgroundProces
 
 ## How to use
 
-1. Create etc/bot_config.php. We included etc/bot_config-sample.php in the package. You can copy and edit it:
+1. Create etc/bot_config.php. (the path is relative to your project root:
 ```
 $token      = 'The_bot:token_received_from_BotFather';
 $ca_cert    = 'Path to cacert.pem';
