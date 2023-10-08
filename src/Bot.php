@@ -220,7 +220,7 @@ class Bot {
         
         if ($handlers === null) {
             Env::load($update);
-            $handlers = self::$handlers[Env::$update_type];
+            $handlers = isset(self::$handlers[Env::$update_type]) ? self::$handlers[Env::$update_type] : [];
         }
         
         $data = self::getUpdateData($update);

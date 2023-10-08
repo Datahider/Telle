@@ -16,13 +16,17 @@ class Env {
 
     public static model\DBUser $user;
     public static model\DBChat | null $chat;
-    public static int | null $message_thread_id;
+    public static ?int $message_thread_id;
     public static model\DBSession $session;
     public static string $language_code;
     public static string $update_type;
 
     static protected function initLast() {
-        self::$language_code = self::$user->language_code;
+        if (self::$user !== null) {
+            self::$language_code = self::$user->language_code;
+        } else {
+            self::$language_code = 'default';
+        }
         self::$session = new model\DBSession(self::$user, self::$chat, self::$message_thread_id);
     }
 
@@ -68,7 +72,6 @@ class Env {
     static protected function initByCallbackQuery(\TelegramBot\Api\Types\CallbackQuery &$callback_query) {
         self::$update_type = Bot::UT_CALLBACK_QUERY;
         $from = $callback_query->getFrom();
-        self::$language_code = $from->getLanguageCode();
         self::$user = new model\DBUser($from);
         
         $chat = $callback_query->getMessage()->getChat();
@@ -84,7 +87,8 @@ class Env {
     
     static protected function initByChosenInlineResult(\TelegramBot\Api\Types\Inline\ChosenInlineResult &$chosen_inline_result) {
         self::$update_type = Bot::UT_CHOSEN_INLINE_RELULT;
-        self::$user = null;
+        $from = $chosen_inline_result->getFrom();
+        self::$user = new model\DBUser($from);
         self::$chat = null;
         self::$message_thread_id = null;
     }
@@ -102,7 +106,6 @@ class Env {
     static protected function initByInlineQuery(\TelegramBot\Api\Types\Inline\InlineQuery &$inline_query) {
         self::$update_type = Bot::UT_INLINE_QUERY;
         $from = $inline_query->getFrom();
-        self::$language_code = $from->getLanguageCode();
         self::$user = new model\DBUser($from);
         self::$chat = null;
         self::$message_thread_id = null;
@@ -111,7 +114,6 @@ class Env {
     static protected function initByMessage(\TelegramBot\Api\Types\Message &$message) {
         self::$update_type = Bot::UT_MESSAGE;
         $from = $message->getFrom();
-        self::$language_code = $from->getLanguageCode();
         self::$user = new model\DBUser($from);
         
         $chat = $message->getChat();
@@ -129,21 +131,28 @@ class Env {
     
     static protected function initByPollAnswer(\TelegramBot\Api\Types\PollAnswer &$poll_answer) {
         self::$update_type = Bot::UT_POLL_ANSWER;
-        self::$user = null;
+        $user = $poll_answer->getUser();
+        if ($user) {
+            self::$user = new model\DBUser($user);
+        } else {
+            self::$user = null;
+        }
         self::$chat = null;
         self::$message_thread_id = null;
     }
     
     static protected function initByPreCheckoutQuery(\TelegramBot\Api\Types\Payments\Query\PreCheckoutQuery &$pre_checkout_query) {
         self::$update_type = Bot::UT_PRE_CHECKOUT_QUERY;
-        self::$user = null;
+        $from = $pre_checkout_query->getFrom();
+        self::$user = new model\DBUser($from);
         self::$chat = null;
         self::$message_thread_id = null;
     }
     
     static protected function initByShippingQuery(\TelegramBot\Api\Types\Payments\Query\ShippingQuery &$shipping_query) {
         self::$update_type = Bot::UT_SHIPPING_QUERY;
-        self::$user = null;
+        $from = $shipping_query->getFrom();
+        self::$user = new model\DBUser($from);
         self::$chat = null;
         self::$message_thread_id = null;
     }
@@ -156,7 +165,6 @@ class Env {
     static protected function initByChatMember(\TelegramBot\Api\Types\ChatMemberUpdated &$chat_member) {
         self::$update_type = Bot::UT_CHAT_MEMBER;
         $from = $chat_member->getFrom();
-        self::$language_code = $from->getLanguageCode();
         self::$user = new model\DBUser($from);
         
         $chat = $chat_member->getChat();
@@ -168,7 +176,6 @@ class Env {
     static protected function initByChatJoinRequest(\TelegramBot\Api\Types\ChatJoinRequest &$chat_join_request) {
         self::$update_type = Bot::UT_CHAT_JOIN_REQUEST;
         $from = $chat_join_request->getFrom();
-        self::$language_code = $from->getLanguageCode();
         self::$user = new model\DBUser($from);
 
         $chat = $chat_join_request->getChat();
