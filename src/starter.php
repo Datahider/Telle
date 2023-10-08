@@ -3,7 +3,6 @@
 namespace losthost\telle;
 
 require_once "vendor/autoload.php";
-require_once 'etc/config-defaults.php';
 
 Bot::setup();
 

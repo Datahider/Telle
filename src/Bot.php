@@ -54,6 +54,8 @@ class Bot {
                 The file must contain:
                     \$token      = 'The_bot:token_received_from_BotFather';
                     \$ca_cert    = 'Path to cacert.pem';
+                    \$timezone   = 'Default/Timezone';
+                    
                     \$db_host    = 'your.database.host';
                     \$db_user    = 'db_username';
                     \$db_pass    = 'Db-PAssWorD';
@@ -65,6 +67,7 @@ class Bot {
         require 'etc/bot_config.php';
         self::setupApi($token, $ca_cert);
         self::setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix);
+        date_default_timezone_set($timezone);
         self::$is_initialized = true;
     }
     

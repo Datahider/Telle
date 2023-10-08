@@ -10,6 +10,7 @@ Also it has its own cron sheduler which allows to start AbstractBackgroundProces
 ```
 $token      = 'The_bot:token_received_from_BotFather';
 $ca_cert    = 'Path to cacert.pem';
+$timezone   = 'Default/Timezone';       // ex. Europe/Moscow
 $db_host    = 'your.database.host';
 $db_user    = 'db_username';
 $db_pass    = 'Db-PAssWorD';
