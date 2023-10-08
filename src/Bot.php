@@ -32,8 +32,8 @@ class Bot {
     const UT_CHAT_MEMBER            = 'chat_member';
     const UT_CHAT_JOIN_REQUEST      = 'chat_join_request';
 
-    const BG_STARTER_WINDOWS        = 'start /b php '. __DIR__. '/starter.php %s %s';
-    const BG_STARTER_UNIX           = 'php '. __DIR__. '/starter.php %s %s >/dev/null 2>&1 &';
+    const BG_STARTER_WINDOWS        = 'start /b php "'. __DIR__. '/starter.php" %s %s';
+    const BG_STARTER_UNIX           = 'php "'. __DIR__. '/starter.php" %s %s >/dev/null 2>&1 &';
 
     protected static $handlers      = [];  
     protected static $workers       = [];
