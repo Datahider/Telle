@@ -254,7 +254,6 @@ class Bot {
             error_log("Got Exception with code ". $e->getCode(). " while processing handler ". get_class($handler));
             error_log($e->getMessage());
             error_log($e->getTraceAsString());
-            throw $e;
         }
     }
 
