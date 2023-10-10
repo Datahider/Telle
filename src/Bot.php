@@ -49,28 +49,38 @@ class Bot {
      */
     static public function setup() {
         if (!file_exists('etc/bot_config.php')) {
-            throw new \Exception(<<<END
-                Config file etc/bot_config.php is not found.
-                The file must contain:
-                    \$token      = 'The_bot:token_received_from_BotFather';
-                    \$ca_cert    = 'Path to cacert.pem';
-                    \$timezone   = 'Default/Timezone';
-                    
-                    \$db_host    = 'your.database.host';
-                    \$db_user    = 'db_username';
-                    \$db_pass    = 'Db-PAssWorD';
-                    \$db_name    = 'database_name';
-                    \$db_prefix  = 'table_prefix_';
-                    
-                END);
+            $this->throwConfigException('Config file etc/bot_config.php is not found.');
         }
+        
         require 'etc/bot_config.php';
+        if (empty($token) || empty($timezone) || empty($db_host) || empty($db_user) || empty($db_pass) 
+                || empty($db_name) || preg_match("/^Windows/", php_uname('s')) && empty($ca_cert)) {
+            self::throwConfigException('Config file etc/bot_config.php contains incomplete data.');
+        }
+        
         self::setupApi($token, $ca_cert);
         self::setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix);
         date_default_timezone_set($timezone);
         self::$is_initialized = true;
     }
     
+    static protected function throwConfigException($text) {
+        throw new \Exception(<<<END
+            $text
+            The file must contain:
+                \$token      = 'The_bot:token_received_from_BotFather';
+                \$ca_cert    = 'Path to cacert.pem'; // Can be ommited for *nix systems
+                \$timezone   = 'Default/Timezone';
+
+                \$db_host    = 'your.database.host';
+                \$db_user    = 'db_username';
+                \$db_pass    = 'Db-PAssWorD';
+                \$db_name    = 'database_name';
+                \$db_prefix  = 'table_prefix_';
+
+            END);
+    }
+
     static protected function setupApi($token,  $ca_cert) {
         self::$api = new \TelegramBot\Api\BotApi($token); 
         self::$api->setCurlOption(CURLOPT_CAINFO, $ca_cert);
