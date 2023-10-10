@@ -133,7 +133,7 @@ class Bot {
         }
     }
 
-    static public function runAt(\DateTime|\DateTimeImmutable|string $start_time, string $job_class, ?string $job_args, bool $in_background=false) {
+    static public function runAt(\DateTime|\DateTimeImmutable|string $start_time, string $job_class, ?string $job_args='', bool $in_background=false) {
         if (is_string($start_time)) {
             new model\DBCronEntry($start_time, $in_background, $job_class, $job_args);
         } else {
