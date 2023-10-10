@@ -49,7 +49,7 @@ class Bot {
      */
     static public function setup() {
         if (!file_exists('etc/bot_config.php')) {
-            $this->throwConfigException('Config file etc/bot_config.php is not found.');
+            self::throwConfigException('Config file etc/bot_config.php is not found.');
         }
         
         require 'etc/bot_config.php';
