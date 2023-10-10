@@ -31,14 +31,20 @@ class DBCronEntry extends \losthost\DB\DBObject {
             ) COMMENT = 'v1.0.0'
             END;
     
-    public function __construct(int | string $id_or_expression) {
+    public function __construct(int | string $id_or_expression, bool $in_background=false, string $job_class='', string $job_args='') {
         if (is_int($id_or_expression)) {
             // load by int
             parent::__construct('id = ?', $id_or_expression);
-        } else {
+        } elseif (!empty ($job_class)) {
             // create by expression
             parent::__construct();
             $this->cron_expression = $id_or_expression;
+            $this->start_in_background = $in_background;
+            $this->job_class = $job_class;
+            $this->job_args = $job_args;
+            $this->write();
+        } else {
+            throw new \Exception('You must give a job_class as the third argument.');
         }
     }
     

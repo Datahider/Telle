@@ -6,7 +6,8 @@
  */
 
 namespace losthost\telle;
-
+use losthost\telle\model\DBCronEntry;
+use losthost\telle\model\DBPendingJob;
 /**
  * Description of BGCron
  *
@@ -27,7 +28,7 @@ class BGCron extends abst\AbstractBackgroundProcess {
         }
         $this->sleep = $sleep;
         parent::__construct($sleep);
-        model\DBCronEntry::initDataStructure();
+        DBCronEntry::initDataStructure();
     }
 
     public function run() {
@@ -47,20 +48,38 @@ class BGCron extends abst\AbstractBackgroundProcess {
     }
     
     public function getJobs() : array {
-        $sql = <<<END
+        $sql_cron = <<<END
                 SELECT id FROM [telle_cron_entries] WHERE next_start_time <= ?
+                END;
+        $sql_pending = <<<END
+                SELECT id FROM [telle_pending_jobs] WHERE start_time <= ? AND was_started IS NULL
                 END;
         
         $now = date_create()->format(\losthost\DB\DB::DATE_FORMAT);
-        $jobs = new \losthost\DB\DBView($sql, $now);
-        $ids = [];
-        while ($jobs->next()) {
-            $ids[] = $jobs->id;
+        $jobs = [];
+
+        $jobs_cron = new \losthost\DB\DBView($sql_cron, $now);
+        while ($jobs_cron->next()) {
+            $jobs[] = new DBCronEntry($jobs_cron->id);
         }
-        return $ids;
+
+        $jobs_pending = new \losthost\DB\DBView($sql_pending, $now);
+        while ($jobs_pending->next()) {
+            $jobs[] = new model\DBPendingJob($jobs_pending->id);
+        }
+
+        return $jobs;
     }
 
-    protected function startJob($job) {
+    protected function startJob(DBCronEntry|DBPendingJob &$job) {
+        if (is_a($job, model\DBCronEntry::class)) {
+            $this->startCronJob($job);
+        } elseif (is_a($job, model\DBPendingJob::class)) {
+            $this->startPendingJob($job);
+        }
+    }
+    
+    protected function startCronJob(DBCronEntry &$job) {
         if ($job->start_in_background) {
             error_log("CRON: Starting job \"$job->job_class\" in background.");
             Bot::startClass($job->job_class, $job->job_args);
@@ -81,15 +100,40 @@ class BGCron extends abst\AbstractBackgroundProcess {
         }
     }
     
+    protected function startPendingJob(DBPendingJob &$job) {
+        if ($job->start_in_background) {
+            error_log("CRON: Starting job \"$job->job_class\" in background.");
+            Bot::startClass($job->job_class, $job->job_args);
+
+            $job->was_started = date_create();
+            $job->result = self::JOB_RESULT_BACKGROUND;
+        } else {
+            error_log("CRON: Starting job \"$job->job_class\" in cron thread.");
+            $job_object = new ($job->job_class)($job->job_args);
+            try {
+                $job->was_started = date_create();
+                $job_object->run();
+                $job->result = self::JOB_RESULT_OK;
+            } catch (\Exception $ex) {
+                $job->result = self::JOB_RESULT_ERROR;
+                $job->error_description = $ex->getMessage();
+            }
+        }
+    }
+    
     public function runJobs(array $jobs) {
-        foreach ($jobs as $job_id) {
-            $job = new model\DBCronEntry($job_id);
+        foreach ($jobs as $job) {
             if (class_exists($job->job_class)) {
                 $this->startJob($job);
-            } else {
+            } elseif (is_a($job, model\DBCronEntry::class)) {
                 $job->last_started = date_create();
                 $job->last_result = self::JOB_RESULT_ERROR;
                 $job->last_error_description = "Class \"$job->job_class\" does not exist.";
+                error_log("CRON: Class \"$job->job_class\" does not exist.");
+            } elseif (is_a($job, model\DBPendingJob::class)) {
+                $job->was_started = date_create();
+                $job->result = self::JOB_RESULT_ERROR;
+                $job->error_description = "Class \"$job->job_class\" does not exist.";
                 error_log("CRON: Class \"$job->job_class\" does not exist.");
             }
             $job->write();

@@ -30,15 +30,20 @@ class DBPendingJob extends \losthost\DB\DBObject {
             ) COMMENT = 'v1.0.0'
             END;
     
-    public function __construct($id_or_start_time, $start_in_background=0, $class='', $args=[]) {
-        if (is_int($id_or_expression)) {
+    public function __construct(int|\DateTime|\DateTimeImmutable $id_or_start_time, bool $start_in_background=false, $job_class='', $job_args='') {
+        if (is_int($id_or_start_time)) {
             // load by int
-            parent::__construct('id = ?', $id_or_expression);
-            $this->loadByInt($id_or_expression);
-        } else {
-            // create by expression
+            parent::__construct('id = ?', $id_or_start_time);
+        } elseif (!empty ($job_class)) {
+        // create 
             parent::__construct();
-            $this->cron_expression = $id_or_expression;
+            $this->start_time = $id_or_start_time;
+            $this->start_in_background = $start_in_background;
+            $this->job_class = $job_class;
+            $this->job_args = $job_args;
+            $this->write();
+        } else {
+            throw new \Exception('You must give a job_class as the third argument.');
         }
     }
     

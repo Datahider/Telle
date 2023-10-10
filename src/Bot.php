@@ -89,6 +89,7 @@ class Bot {
     static protected function setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix) {
         \losthost\DB\DB::connect($db_host, $db_user, $db_pass, $db_name, $db_prefix);
         model\DBPendingUpdate::initDataStructure();
+        model\DBPendingJob::initDataStructure();
         model\DBCronEntry::initDataStructure();
     }
 
@@ -132,6 +133,14 @@ class Bot {
         }
     }
 
+    static public function runAt(\DateTime|\DateTimeImmutable|string $start_time, string $job_class, ?string $job_args, bool $in_background=false) {
+        if (is_string($start_time)) {
+            new model\DBCronEntry($start_time, $in_background, $job_class, $job_args);
+        } else {
+            new model\DBPendingJob($start_time, $in_background, $job_class, $job_args);
+        }
+    }
+    
     static public function run() {
         if (!self::$is_initialized) {
             throw new Exception("Please setup Bot via Bot::setup(...)");
