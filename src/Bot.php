@@ -444,7 +444,7 @@ class Bot {
             $starter = self::BG_STARTER_UNIX;
         }
         
-        $start_cmd = sprintf($starter, $class, $param);
+        $start_cmd = sprintf($starter, escapeshellarg($class), escapeshellarg($param));
         return popen($start_cmd, $mode);
     }
 
