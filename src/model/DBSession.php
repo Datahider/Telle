@@ -81,6 +81,7 @@ class DBSession extends \losthost\DB\DBObject {
         if ($result === null) {
             return $default;
         }
+        return $result;
     }
     
     public function set($name, $value) {
