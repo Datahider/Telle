@@ -7,7 +7,6 @@
 
 namespace losthost\telle\samples;
 use losthost\telle\Bot;
-use losthost\telle\Env;
 
 /**
  * Description of HandlerMessageLogger
@@ -27,12 +26,5 @@ class HandlerMessageLogger extends \losthost\telle\abst\AbstractHandlerMessage {
         error_log($this->text);
         return false;
     }
-
-    protected function init(): void {
-        $this->text = null;
-    }
-
-    public function isFinal(): bool {
-        return false;
-    }
+    
 }

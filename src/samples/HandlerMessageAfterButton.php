@@ -7,7 +7,6 @@
 
 namespace losthost\telle\samples;
 use losthost\telle\Bot;
-use losthost\telle\Env;
 use function losthost\telle\globals\__ as __;
 
 /**
@@ -29,20 +28,12 @@ class HandlerMessageAfterButton extends \losthost\telle\abst\AbstractHandlerMess
     }
 
     protected function handle(\TelegramBot\Api\Types\Message &$message): bool {
-        Bot::$api->sendMessage(Env::$chat->id, "This is a special processing of text message after pressing PRESS_ME button");
+        Bot::$api->sendMessage(Bot::$chat->id, "This is a special processing of text message after pressing PRESS_ME button");
         return true;
-    }
-
-    protected function init(): void {
-        
-    }
-
-    public function isFinal(): bool {
-        return false;
     }
     
     static public function showPrompt($message_id) {
         static::setPriority(['message_id' => $message_id]);
-        Bot::$api->sendMessage(Env::$chat->id, __("There is a special processing of text message afer pressing \"Press me\" button. So please send me something interesting."));
+        Bot::$api->sendMessage(Bot::$chat->id, "There is a special processing of text message afer pressing \"Press me\" button. So please send me something interesting.");
     }
 }

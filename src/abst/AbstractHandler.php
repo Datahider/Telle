@@ -2,7 +2,7 @@
 
 namespace losthost\telle\abst;
 
-use losthost\telle\Env;
+use losthost\telle\Bot;
 use losthost\telle\model\DBSession;
 
 /**
@@ -12,14 +12,17 @@ use losthost\telle\model\DBSession;
  */
 abstract class AbstractHandler {
 
+    const IS_FINAL = false;
+    
     protected $check_cache;
 
     public function __construct() {
         $this->initHandler();
     }
     
-    abstract public function isFinal() : bool;
-    abstract protected function init() : void;
+    protected function init() : void {
+        
+    }
 
     public function initHandler() {
         $this->check_cache = null;
@@ -44,13 +47,13 @@ abstract class AbstractHandler {
     }
     
     static protected function setPriority(mixed $data) {
-        Env::$session->set(DBSession::FIELD_PRIORITY_HANDLER, static::class);
-        Env::$session->set('data', $data);
+        Bot::$session->set(DBSession::FIELD_PRIORITY_HANDLER, static::class);
+        Bot::$session->set('data', $data);
     }
     
     static public function unsetPriority() {
-        Env::$session->set(DBSession::FIELD_PRIORITY_HANDLER, null);
-        Env::$session->set('data', null);
+        Bot::$session->set(DBSession::FIELD_PRIORITY_HANDLER, null);
+        Bot::$session->set('data', null);
     }
     
 }
