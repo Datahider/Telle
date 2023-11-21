@@ -5,6 +5,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/PHPClass.php to edit this template
  */
 namespace losthost\telle;
+use Exception;
 
 require_once 'globals.php';
 
