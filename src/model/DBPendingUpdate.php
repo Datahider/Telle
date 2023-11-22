@@ -1,21 +1,22 @@
 <?php
 
 namespace losthost\telle\model;
+use losthost\DB\DB;
 
 class DBPendingUpdate extends \losthost\DB\DBObject {
     
-    const TABLE_NAME = 'telle_pending_updates';
-    
-    const SQL_CREATE_TABLE = <<<END
-            CREATE TABLE IF NOT EXISTS %TABLE_NAME% (
-                id bigint UNSIGNED NOT NULL,
-                data text(10240) NOT NULL,
-                locked_till int UNSIGNED NOT NULL,
-                worker int UNSIGNED,
-                PRIMARY KEY (id)
-            ) COMMENT = 'v1.0.0';
-            END;
+const METADATA = [
+    'id' => 'bigint UNSIGNED NOT NULL',
+    'data' => 'text(10240) NOT NULL',
+    'locked_till' => 'int UNSIGNED NOT NULL',
+    'worker' => 'int UNSIGNED',
+    'PRIMARY KEY' => 'id'
+];    
 
+    public static function tableName() {
+        return DB::$prefix. 'telle_pending_updates';
+    }
+    
     public function __construct(int|\TelegramBot\Api\Types\Update $update, $worker=null, $max_processing_time=null) {
         if (is_a($update, \TelegramBot\Api\Types\Update::class)) {
             if ($worker === null || $max_processing_time === null) {
@@ -28,7 +29,7 @@ class DBPendingUpdate extends \losthost\DB\DBObject {
             $this->worker = $worker;
             $this->write();
         } else {
-            parent::__construct('id = ?', $update, false);
+            parent::__construct(['id' => $update]);
         }
     }
     public function __get($name) {
