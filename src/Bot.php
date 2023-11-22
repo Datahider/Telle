@@ -527,7 +527,7 @@ class Bot {
             throw new \Exception("Can't load Env.");
         }
         
-        self::initLast();
+        static::initLast();
         
         return false;
     }
