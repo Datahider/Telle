@@ -544,8 +544,8 @@ class Bot {
     }
     
     static protected function initByChannelPost(\TelegramBot\Api\Types\Message &$channel_post) {
-        self::$update_type = self::UT_CHANNEL_POST;
         static::initByMessage($channel_post);
+        self::$update_type = self::UT_CHANNEL_POST;
     }
     
     static protected function initByChosenInlineResult(\TelegramBot\Api\Types\Inline\ChosenInlineResult &$chosen_inline_result) {
@@ -557,13 +557,13 @@ class Bot {
     }
     
     static protected function initByEditedChannelPost(\TelegramBot\Api\Types\Message &$edited_channel_post) {
-        self::$update_type = self::UT_EDITED_CHANNEL_POST;
         static::initByMessage($edited_channel_post);
+        self::$update_type = self::UT_EDITED_CHANNEL_POST;
     }
     
     static protected function initByEditedMessage(\TelegramBot\Api\Types\Message &$edited_message) {
-        self::$update_type = self::UT_EDITED_MESSAGE;
         static::initByMessage($edited_message);
+        self::$update_type = self::UT_EDITED_MESSAGE;
     }
     
     static protected function initByInlineQuery(\TelegramBot\Api\Types\Inline\InlineQuery &$inline_query) {
