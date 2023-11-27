@@ -444,9 +444,9 @@ class Bot {
      */
     static public function startClass(string $class, string $param='', string $mode='w') {
         if (preg_match("/^Windows/", php_uname('s'))) {
-            $starter = self::BG_STARTER_WINDOWS;
+            $starter = static::BG_STARTER_WINDOWS;
         } else {
-            $starter = self::BG_STARTER_UNIX;
+            $starter = static::BG_STARTER_UNIX;
         }
         
         $start_cmd = sprintf($starter, escapeshellarg($class), escapeshellarg($param));
