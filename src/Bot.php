@@ -443,6 +443,12 @@ class Bot {
      * @return resource
      */
     static public function startClass(string $class, string $param='', string $mode='w') {
+        $start_cmd = static::getStartCmd($class, $param);
+        return popen($start_cmd, $mode);
+    }
+
+    static protected function getStartCmd(string $class, string $param) {
+        
         if (preg_match("/^Windows/", php_uname('s'))) {
             $starter = static::BG_STARTER_WINDOWS;
         } else {
@@ -450,7 +456,10 @@ class Bot {
         }
         
         $start_cmd = sprintf($starter, escapeshellarg($class), escapeshellarg($param));
-        return popen($start_cmd, $mode);
+        if (isset($php_path)) {
+            $start_cmd = preg_replace("/^php /", PHP_BINARY. ' ', $start_cmd);
+        }
+        return $start_cmd;
     }
 
     static protected function startCron() {
@@ -459,16 +468,10 @@ class Bot {
 
     static protected function startWorkers() {
         
-        if (php_uname('s') === 'Windows') {
-            $starter = self::BG_STARTER_WINDOWS;
-        } else {
-            $starter = self::BG_STARTER_UNIX;
-        }
-
         $workers_count = self::param('workers_count', 1);
         for ($index = 0; $index < $workers_count; $index++) {
             
-            $worker_start_cmd = sprintf($starter, BGWorker::class, $index);
+            $worker_start_cmd = static::getStartCmd(BGWorker::class, $index);
             $wh = new \losthost\telle\WorkerHandle($worker_start_cmd, $index);
             $wh->run();
             
