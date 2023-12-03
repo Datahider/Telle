@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "474ecba4d10e847d5d8a22e54a319039",
+    "content-hash": "ed675e8a78996853f94aa346999b280a",
     "packages": [
         {
             "name": "dragonmantank/cron-expression",
@@ -69,26 +69,29 @@
         },
         {
             "name": "losthost/db",
-            "version": "v2.0.1",
+            "version": "v3.0.9-alpha",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Datahider/DB.git",
-                "reference": "9b5cca98c751de350a64e5c1ba8f7602b1b51e7a"
+                "reference": "9c462927c6471ab0746e8d0778a3d2cb9801504f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/DB/zipball/9b5cca98c751de350a64e5c1ba8f7602b1b51e7a",
-                "reference": "9b5cca98c751de350a64e5c1ba8f7602b1b51e7a",
+                "url": "https://api.github.com/repos/Datahider/DB/zipball/9c462927c6471ab0746e8d0778a3d2cb9801504f",
+                "reference": "9c462927c6471ab0746e8d0778a3d2cb9801504f",
                 "shasum": ""
             },
             "require": {
-                "losthost/self-testing-suite": ">=1.1.0",
                 "php": "^8.1.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "10.4.2"
             },
             "type": "class",
             "autoload": {
                 "psr-4": {
-                    "losthost\\DB\\": "src"
+                    "losthost\\DB\\": "src",
+                    "losthost\\DB\\test\\": "test"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -111,46 +114,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Datahider/DB/issues",
-                "source": "https://github.com/Datahider/DB/tree/v2.0.1"
+                "source": "https://github.com/Datahider/DB/tree/v3.0.9-alpha"
             },
-            "time": "2023-10-12T01:18:28+00:00"
-        },
-        {
-            "name": "losthost/self-testing-suite",
-            "version": "v1.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Datahider/lhTestingSuite.git",
-                "reference": "6e948f888e4ed9a5cb55b3135057846cf5467e0e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/lhTestingSuite/zipball/6e948f888e4ed9a5cb55b3135057846cf5467e0e",
-                "reference": "6e948f888e4ed9a5cb55b3135057846cf5467e0e",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "losthost\\SelfTestingSuite\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "Petros Ioannidis",
-                    "email": "pio@pio.su"
-                }
-            ],
-            "description": "A parrent class for self-testing classes",
-            "support": {
-                "issues": "https://github.com/Datahider/lhTestingSuite/issues",
-                "source": "https://github.com/Datahider/lhTestingSuite/tree/v1.1.1"
-            },
-            "time": "2023-10-16T16:41:11+00:00"
+            "time": "2023-11-22T14:00:38+00:00"
         },
         {
             "name": "telegram-bot/api",
@@ -289,7 +255,7 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
         "telegram-bot/api": 20
     },
@@ -299,5 +265,5 @@
         "php": ">=8.1.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

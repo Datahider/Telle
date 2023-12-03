@@ -8,7 +8,7 @@ Bot::setup();
 
 $process_class = $argv[1];
 
-if ( isset($argv[2]) ) {
+if ( !empty($argv[2]) ) {
     $process = new $process_class($argv[2]);
     error_log("Starting $process_class with parameter $argv[2]");
 } else {
