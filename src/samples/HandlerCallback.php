@@ -7,7 +7,6 @@
 
 namespace losthost\telle\samples;
 use losthost\telle\Bot;
-use losthost\telle\Env;
 
 /**
  * Description of CallbackHandler
@@ -16,14 +15,6 @@ use losthost\telle\Env;
  */
 class HandlerCallback extends \losthost\telle\abst\AbstractHandlerCallback {
 
-    public function isFinal() : bool {
-        return false;
-    }
-    
-    protected function init() : void {
-        // nothing to
-    }
-    
     protected function check(\TelegramBot\Api\Types\CallbackQuery &$callback_query) : bool {
         return (bool)$callback_query;
     }

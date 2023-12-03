@@ -1,6 +1,7 @@
 {
     "name": "losthost/telle",
     "description": "A simple template for extreme complex bot",
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "drweb",
@@ -9,7 +10,7 @@
     ],
     "require": {
         "telegram-bot/api": "2.6.x-dev",
-        "losthost/db": "^2.0.0",
+        "losthost/db": "^3",
         "php": ">=8.1.1",
         "dragonmantank/cron-expression": "v3.3.3"
     },

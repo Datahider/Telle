@@ -7,7 +7,6 @@
 
 namespace losthost\telle\samples;
 use losthost\telle\Bot;
-use losthost\telle\Env;
 
 /**
  * Description of AnotherFinalHandler
@@ -16,14 +15,8 @@ use losthost\telle\Env;
  */
 class HandlerFinalCallback extends \losthost\telle\abst\AbstractHandlerCallback {
     
-    public function isFinal() : bool {
-        return true;
-    }
+    const IS_FINAL = true;
     
-    protected function init() : void {
-        // nothing to
-    }
-
     protected function check(\TelegramBot\Api\Types\CallbackQuery &$callback_query) : bool {
         return true;
     }
@@ -32,7 +25,7 @@ class HandlerFinalCallback extends \losthost\telle\abst\AbstractHandlerCallback 
         
         try {
             Bot::$api->sendMessage(
-                Env::$chat->id,
+                Bot::$chat->id,
                 'This another final handler is for callback queries',
             );
         } catch (\TelegramBot\Api\HttpException $ex) {
