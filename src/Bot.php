@@ -131,6 +131,8 @@ class Bot {
             self::$handlers[self::UT_PRE_CHECKOUT_QUERY][] = $handler_class_name;
         } elseif (is_a($handler_class_name, abst\AbstractHandlerShippingQuery::class, true)) {
             self::$handlers[self::UT_SHIPPING_QUERY][] = $handler_class_name;
+        } else {
+            throw new \Exception('The handler must be a descendant of one of abstract handlers.');
         }
     }
 
