@@ -58,9 +58,12 @@ class Bot {
         }
         
         require 'etc/bot_config.php';
-        if (empty($token) || empty($timezone) || empty($db_host) || empty($db_user) || empty($db_pass) 
-                || empty($db_name) || preg_match("/^Windows/", php_uname('s')) && empty($ca_cert)) {
+        if (empty($token) || empty($timezone) || empty($db_host) || empty($db_user) || empty($db_pass) || empty($db_name)) {
             self::throwConfigException('Config file etc/bot_config.php contains incomplete data.');
+        }
+        
+        if (empty($ca_cert)) {
+            $ca_cert = __DIR__. "/cacert.pem";
         }
         
         self::setupApi($token, $ca_cert);
@@ -74,7 +77,7 @@ class Bot {
             $text
             The file must contain:
                 \$token      = 'The_bot:token_received_from_BotFather';
-                \$ca_cert    = 'Path to cacert.pem'; // Can be ommited for *nix systems
+                \$ca_cert    = 'Path to cacert.pem'; // Defaults to an internal cacert
                 \$timezone   = 'Default/Timezone';
 
                 \$db_host    = 'your.database.host';
