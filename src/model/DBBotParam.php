@@ -6,6 +6,7 @@
  */
 
 namespace losthost\telle\model;
+use losthost\DB\DB;
 
 /**
  * Description of BotParam
@@ -14,20 +15,19 @@ namespace losthost\telle\model;
  */
 class DBBotParam extends \losthost\DB\DBObject {
 
-    const TABLE_NAME = 'telle_bot_params';
+    const METADATA = [
+        'name'          => 'varchar(100) NOT NULL',
+        'value'         => 'varchar(256)',
+        'PRIMARY KEY'   => 'name'
+    ];
     
-    const SQL_CREATE_TABLE = <<<END
-            CREATE TABLE IF NOT EXISTS %TABLE_NAME% (
-                name varchar(100) NOT NULL,
-                value varchar(256),
-                PRIMARY KEY (name)
-            ) COMMENT = 'v1.0.0'
-            END;
+    public static function tableName() {
+        return DB::$prefix. 'telle_bot_params';
+    }
     
     public function __construct($name, $default=null) {
-        parent::__construct('name = ?', $name, true);
+        parent::__construct(['name' => $name], true);
         if ($this->isNew()) {
-            $this->name = $name;
             $this->value = $default;
             $this->write();
             return;
@@ -43,10 +43,11 @@ class DBBotParam extends \losthost\DB\DBObject {
     }   
     
     public function __set($name, $value) {
-        parent::__set($name, $value);
-        if ($this->isModified()) {
-            $this->write();
+        if ($this->name == $value) {
+            return;
         }
+        parent::__set($name, $value);
+        $this->write();
     }
     
 }

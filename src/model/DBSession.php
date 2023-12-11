@@ -5,6 +5,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/PHPClass.php to edit this template
  */
 namespace losthost\telle\model;
+use losthost\DB\DB;
 
 /**
  * Description of DBSession
@@ -13,32 +14,28 @@ namespace losthost\telle\model;
  */
 class DBSession extends \losthost\DB\DBObject {
 
-    const TABLE_NAME = 'telle_sessions';
+const METADATA = [
+    'id' => 'bigint UNSIGNED NOT NULL AUTO_INCREMENT',
+    'user' => 'bigint UNSIGNED NOT NULL',
+    'chat' => 'bigint NOT NULL',
+    'message_thread_id' => 'bigint', 
+    'mode' => 'varchar(128)',
+    'command' => 'varchar(128)',
+    'state' => 'varchar(128)',
+    'data' => 'text(4096)',
+    'priority_handler' => 'varchar(128)',
+    'PRIMARY KEY' => 'id'
+];    
     
-    const SQL_CREATE_TABLE = <<<END
-            CREATE TABLE IF NOT EXISTS %TABLE_NAME% (
-                id bigint UNSIGNED NOT NULL AUTO_INCREMENT,
-                user bigint UNSIGNED NOT NULL,
-                chat bigint NOT NULL,
-                message_thread_id bigint, 
-                mode varchar(128),
-                command varchar(128),
-                state varchar(128),
-                data text(4096),
-                PRIMARY KEY (id)
-            ) COMMENT = 'v1.0.0'
-            END;
-    
-    const SQL_UPGRADE_FROM_1_0_0 = <<<END
-            ALTER TABLE %TABLE_NAME% COMMENT = 'v1.0.1',
-            ADD COLUMN priority_handler varchar(128);
-            END;
-
     const FIELD_MODE    = 'mode';
     const FIELD_COMMAND = 'command';
     const FIELD_STATE   = 'state';
     const FIELD_DATA    = 'data';
     const FIELD_PRIORITY_HANDLER = 'priority_handler';
+    
+    public static function tableName() {
+        return DB::$prefix. 'telle_sessions';
+    }
     
     public function __construct(int|DBUser $user, null|int|DBChat $chat=null, null|int $message_thread_id=null) {
         if (is_a($user, DBUser::class)) {
@@ -51,26 +48,8 @@ class DBSession extends \losthost\DB\DBObject {
             $chat = $chat->id;
         }
         
-        if ($message_thread_id === null) {
-            parent::__construct(
-                    'user = ? AND chat = ? AND message_thread_id IS NULL', 
-                    [$user, $chat], 
-                    true);
-        } else {
-            parent::__construct(
-                    'user = ? AND chat = ? AND message_thread_id = ?', 
-                    [$user, $chat, $message_thread_id], 
-                    true);
-        }
-        
-        $this->initNew($user, $chat, $message_thread_id);
-    }
-    
-    protected function initNew($user, $chat, $message_thread_id) {
+        parent::__construct(['user' => $user, 'chat' => $chat, 'message_thread_id' => $message_thread_id], true);
         if ($this->isNew()) {
-            $this->user = $user;
-            $this->chat = $chat;
-            $this->message_thread_id = $message_thread_id;
             $this->write();
         }
     }

@@ -7,7 +7,6 @@
 
 namespace losthost\telle\samples;
 use losthost\telle\Bot;
-use losthost\telle\Env;
 
 /**
  * Description of StartCommandHandler
@@ -16,14 +15,6 @@ use losthost\telle\Env;
  */
 class HandlerCommandStart extends \losthost\telle\abst\AbstractHandlerMessage {
     
-    public function isFinal() : bool {
-        return false;
-    }
-    
-    protected function init() : void {
-        // nothing to
-    }
-
     protected function check(\TelegramBot\Api\Types\Message &$message) : bool {
         if (!$message) {
             return false;
@@ -33,7 +24,7 @@ class HandlerCommandStart extends \losthost\telle\abst\AbstractHandlerMessage {
 
     protected function handle(\TelegramBot\Api\Types\Message &$message) : bool {
         Bot::$api->sendMessage(
-            Env::$chat->id,
+            Bot::$chat->id,
             "Hi! This is an example /start command handler"
         );
         return true;
