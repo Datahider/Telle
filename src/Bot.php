@@ -60,7 +60,13 @@ class Bot {
         require 'etc/bot_config.php';
         if (empty($token) || empty($timezone) || empty($db_host) || empty($db_user) || empty($db_pass) 
                 || empty($db_name) || preg_match("/^Windows/", php_uname('s')) && empty($ca_cert)) {
-            self::throwConfigException('Config file etc/bot_config.php contains incomplete data.');
+            if (empty($token) || empty($timezone) || empty($db_host) || empty($db_user) || empty($db_pass) || empty($db_name)) {
+                self::throwConfigException('Config file etc/bot_config.php contains incomplete data.');
+            }
+
+            if (empty($ca_cert)) {
+                $ca_cert = __DIR__. "/cacert.pem";
+            }
         }
         
         self::setupApi($token, $ca_cert);
