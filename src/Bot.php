@@ -42,8 +42,8 @@ class Bot {
     
     protected static $is_initialized = false;
     
-    public static model\DBUser $user;
-    public static model\DBChat | null $chat;
+    public static ?model\DBUser $user;
+    public static ?model\DBChat $chat;
     public static ?int $message_thread_id;
     public static model\DBSession $session;
     public static string $language_code;
