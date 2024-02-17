@@ -16,7 +16,7 @@ class DBSession extends \losthost\DB\DBObject {
 
 const METADATA = [
     'id' => 'bigint UNSIGNED NOT NULL AUTO_INCREMENT',
-    'user' => 'bigint UNSIGNED NOT NULL',
+    'user' => 'bigint NOT NULL',
     'chat' => 'bigint NOT NULL',
     'message_thread_id' => 'bigint', 
     'mode' => 'varchar(128)',
