@@ -498,7 +498,7 @@ class Bot {
      */
     
     static protected function initLast() {
-        if (self::$user !== null) {
+        if ( self::$user !== null && self::$user->language_code !== null ) {
             self::$language_code = self::$user->language_code;
         } else {
             self::$language_code = 'default';
