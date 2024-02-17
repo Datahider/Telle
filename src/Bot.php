@@ -580,7 +580,11 @@ class Bot {
     static protected function initByMessage(\TelegramBot\Api\Types\Message &$message) {
         self::$update_type = self::UT_MESSAGE;
         $from = $message->getFrom();
-        self::$user = new model\DBUser($from);
+        if ($from) {
+            self::$user = new model\DBUser($from);
+        } else {
+            self::$user = null;
+        }
         
         $chat = $message->getChat();
         self::$chat = new model\DBChat($chat);
