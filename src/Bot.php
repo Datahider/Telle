@@ -102,6 +102,10 @@ class Bot {
         model\DBPendingUpdate::initDataStructure();
         model\DBPendingJob::initDataStructure();
         model\DBCronEntry::initDataStructure();
+        model\DBUser::initDataStructure();
+        model\DBBotParam::initDataStructure();
+        model\DBChat::initDataStructure();
+        model\DBSession::initDataStructure();
     }
 
     /**
