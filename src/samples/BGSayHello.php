@@ -15,7 +15,7 @@ namespace losthost\telle\samples;
 class BGSayHello extends \losthost\telle\abst\AbstractBackgroundProcess {
     
     public function run() {
-        error_log("Hello world at ". date_create()->format(\losthost\DB\DB::DATE_FORMAT));
+        Bot::logComment("Hello world!");
     }
 
 }

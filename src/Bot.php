@@ -236,22 +236,50 @@ class Bot {
         }
     }
 
+    static public function logException(\Exception $ex, string $comment='',) {
+        
+        $date = date_create_immutable()->format('Y-m-d H:i:s.u');
+        
+        ("$date - ". $ex->getMessage(). '('. $ex->getCode(). ')');
+        error_log("$date - ". $ex->getTraceAsString());
+
+        if ($comment) {
+            error_log("$date - $comment");
+        }
+    }
+    
+    static public function logComment(string $comment, string $file='', ?int $line=null) {
+        $date = date_create_immutable()->format('Y-m-d H:i:s.u');
+        
+        if ($file) {
+            $comment .= " in file $file ($line)";
+        }
+        error_log("$date - $comment");
+    }
+
     static protected function processPriorityHandler($data) {
-        if (self::$session->priority_handler) {
-            $priority_handler = new (self::$session->priority_handler)();
-            $priority_handler->initHandler();
-            
-            try {
-                if ($priority_handler->checkUpdate($data)) {
-                    return $priority_handler->handleUpdate($data);
-                }
-            } catch (\Exception $ex) {
-                $priority_handler->unsetPriority();
-                return false;
-            } catch (\TypeError $ex) {
-                $priority_handler->unsetPriority();
-                return false;
+        
+        $priority_handler_class = self::$session->priority_handler;
+        if (!$priority_handler_class) {
+            return false; // There is no priority handler set in this session
+        }
+
+        if (!is_a($data, \TelegramBot\Api\Types\Message::class)) {
+            self::logComment("Priority handler $priority_handler_class ignored as it is for message upadte types only", __FILE__, __LINE__);
+            return false; // Priority handlers are for message update only
+        }
+        
+        $priority_handler = new ($priority_handler_class)();
+        $priority_handler->initHandler();
+
+        try {
+            if ($priority_handler->checkUpdate($data)) {
+                return $priority_handler->handleUpdate($data);
             }
+        } catch (\Exception $ex) {
+            $priority_handler->unsetPriority();
+            self::logException($ex, 'Priority handler was reset due to an exception while handling.');
+            return false;
         }
     }
 
@@ -275,9 +303,7 @@ class Bot {
                 }
             }
         } catch (\Exception $e) {
-            error_log("Got Exception with code ". $e->getCode(). " while processing handler ". get_class($handler));
-            error_log($e->getMessage());
-            error_log($e->getTraceAsString());
+            self::logException($e, "Got Exception while processing handler ". get_class($handler));
         }
     }
 
@@ -364,7 +390,7 @@ class Bot {
             }
         } catch (\Exception $e) {
             if ($e->getCode() != 28) {
-                error_log('Exception: '. $e->getCode(). ' - '. $e->getMessage());
+                self::logException($e);
             }
         }
         return null;
@@ -401,7 +427,7 @@ class Bot {
         
         foreach ($updates as $update) {
             while ( null === $worker = array_shift($free_workers)) {
-                error_log('Waiting for free workers...');
+                self::logComment('Waiting for free workers...', __FILE__, __LINE__);
                 sleep(1);
                 $free_workers = self::getFreeWorkers();
             }
