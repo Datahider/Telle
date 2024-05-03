@@ -1,15 +1,22 @@
-# Telle - a simple template for nice Telegram bots
+# Telle - простой фреймворк для клёвых Telegram-ботов
 
-This is a skeleton bot which can deal in web-server and standalone (cli) modes.
-In cli mode it supports multiple worker-processes if it is needed for high-loaded sites.
-Also it has its own cron sheduler which allows to start AbstractBackgroundProcess descendants as a part of cron process or in background (recomended for time consuming tasks)
+Этот фреймворк позволяет создавать ботов Telegram, которые могут работать как в режиме веб-сервера через веб-хук, так и в автономном (cli) режиме, получая обновления через getUpdates().
+В автономном режиме поддерживается многопоточность, через запуск worker-процессов если это необходимо для высоконагруженных проектов.
+Также фреймворк имеет свой собственный планировщик заданий, который позволяет стартовать классы-потомки AbstractBackgroundProcess внутри потока планировщика или в отдельном потоке (рекомендуется для процессов потребляющих много времени)
 
-## How to use
+## Быстрый старт
 
-1. Create etc/bot_config.php. (the path is relative to your project root):
+1. Создайте проект и подключите Telle через composer: 
 ```
-$token      = 'The_bot:token_received_from_BotFather';
-$ca_cert    = 'Path to cacert.pem';
+    "require": {
+        "losthost/telle": "^4",
+    },
+```
+
+2. Создайте etc/bot_config.php:
+```
+$token      = 'bot:token_полученный_от_BotFather';
+$ca_cert    = 'Путь/к/cacert.pem';
 $timezone   = 'Default/Timezone';       // ex. Europe/Moscow
 $db_host    = 'your.database.host';
 $db_user    = 'db_username';
@@ -18,47 +25,39 @@ $db_name    = 'database_name';
 $db_prefix  = 'table_prefix_';
 ```
 
-2. Create your own handler(s)
+3. Создайте обработчик
 ```
-use \losthost\telle\abst\AbstractHandlerMessage;
+use losthost\telle\abst\AbstractHandlerCommand;
+use losthost\telle\Bot;
 
-class HandlerDoNothing extends AbstractHandlerMessage {
+class CommandStart extends AbstractHandlerCommand {
 
-    public function isFinal() : bool {return false;}
-    
-    protected function init() : void {}
-
-    protected function check(\TelegramBot\Api\Types\Message &$message) : bool {
-        if (!$message) {
-            return false;
-        }
-        return (bool)$message->getText();
-    }
+    const COMMAND = 'start';
 
     protected function handle(\TelegramBot\Api\Types\Message &$message) : bool {
-        // Do nothing
+        Bot::$api->sendMessage(Bot::$chat->id, 'Hello World!');
         return true;
     }
 }
 ```
 
-3. Create a starter file (ex. index.php) which contains:
+4. Создайте файл запуска бота (например index.php) содержащий следующие строки:
 ```
 use losthost\telle\Bot;
 
-// Initialize bot
+// Инициализация бота
 Bot::setup();
 
-// Do your own initialization
-// add some code here
+// Ваша собственная инициализация если нужна
+// (добавьте сюда какой-нибудь код)
 
-// Add handler(s)
-Bot::addHandler(HandlerDoNothing::class);
+// Добавьте обработчик(и)
+Bot::addHandler(CommandStart::class);
 
-// Start processing updates
+// Запустите бота
 Bot::run();
 ```
-(See src/samples folder for more examples. See src/abst for handler ancestors)
+(Посмотрите папку src/samples, там есть другие примеры обработчиков. В папке src/abst находятся классы-родители обработчиков)
 
 ## TODO
-Now it seems nothing to do
+Создать репозиторий с примером бота и сделать ссылку на него
