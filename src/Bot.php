@@ -29,6 +29,7 @@ class Bot {
     const UT_MY_CHAT_MEMBER         = 'my_chat_member';
     const UT_CHAT_MEMBER            = 'chat_member';
     const UT_CHAT_JOIN_REQUEST      = 'chat_join_request';
+    const UT_COMMAND                = 'command';
 
     const BG_STARTER_WINDOWS        = 'start /b php "'. __DIR__. '/starter.php" %s %s';
     const BG_STARTER_UNIX           = 'php "'. __DIR__. '/starter.php" %s %s >/dev/null 2>&1 &';
@@ -117,7 +118,9 @@ class Bot {
      * @param string $handler_class_name
      */
     static public function addHandler(string $handler_class_name) {
-        if (is_a($handler_class_name, abst\AbstractHandlerCallback::class, true)) {
+        if (is_a($handler_class_name, abst\AbstractHandlerCommand::class, true)) {
+            self::$handlers[self::UT_COMMAND][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerCallback::class, true)) {
             self::$handlers[self::UT_CALLBACK_QUERY][] = $handler_class_name;
         } elseif (is_a($handler_class_name, abst\AbstractHandlerChannelPost::class, true)) {
             self::$handlers[self::UT_CHANNEL_POST][] = $handler_class_name;
@@ -241,6 +244,7 @@ class Bot {
         $date = date_create_immutable()->format('Y-m-d H:i:s.u');
         
         ("$date - ". $ex->getMessage(). '('. $ex->getCode(). ')');
+        error_log("$date - ". $ex->getMessage());
         error_log("$date - ". $ex->getTraceAsString());
 
         if ($comment) {
@@ -257,7 +261,7 @@ class Bot {
         error_log("$date - $comment");
     }
 
-    static protected function processPriorityHandler($data) {
+    static protected function processPriorityHandler($data) : bool {
         
         $priority_handler_class = self::$session->priority_handler;
         if (!$priority_handler_class) {
@@ -282,7 +286,31 @@ class Bot {
             return false;
         }
     }
+    
+    static protected function processCommandHandlers(\TelegramBot\Api\Types\Message &$message) : bool {
 
+        foreach (self::$handlers[self::UT_COMMAND] as $handler_class_name) {
+            
+            try {
+                $handler = new $handler_class_name();
+                $handler->initHandler();
+
+                if (!$handler->checkUpdate($message)) {
+                    continue;
+                }
+
+                $processed = $handler->handleUpdate($message);
+                if ($processed) {
+                    return true;
+                }
+            } catch (\Exception $exc) {
+                self::logException($exc, "Got Exception while processing handler $handler_class_name");
+            }
+
+        }
+        return false;
+    }
+    
     static public function processHandlers(\TelegramBot\Api\Types\Update &$update, array|null $handlers=null) {
         
         if ($handlers === null) {
@@ -294,6 +322,12 @@ class Bot {
             
         try {
             $processed = self::processPriorityHandler($data);
+            if (!$processed
+                    && self::$update_type == self::UT_MESSAGE
+                    && $data->getText()
+                    && preg_match("/^\/([a-zA-Z0-9_]+)\s*(.*)$/", $data->getText())) {
+                $processed = self::processCommandHandlers($data);    
+            }
             foreach ($handlers as $handler_class_name) {
                 
                 $handler = new $handler_class_name();
@@ -303,7 +337,7 @@ class Bot {
                 }
             }
         } catch (\Exception $e) {
-            self::logException($e, "Got Exception while processing handler ". get_class($handler));
+            self::logException($e, "Got Exception while processing handler $handler_class_name.");
         }
     }
 
