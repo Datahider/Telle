@@ -285,6 +285,7 @@ class Bot {
             self::logException($ex, 'Priority handler was reset due to an exception while handling.');
             return false;
         }
+        return false;
     }
     
     static protected function processCommandHandlers(\TelegramBot\Api\Types\Message &$message) : bool {
