@@ -290,6 +290,10 @@ class Bot {
     
     static protected function processCommandHandlers(\TelegramBot\Api\Types\Message &$message) : bool {
 
+        if (empty(self::$handlers[self::UT_COMMAND])) {
+            return false;
+        }
+        
         foreach (self::$handlers[self::UT_COMMAND] as $handler_class_name) {
             
             try {
