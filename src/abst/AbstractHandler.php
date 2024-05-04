@@ -46,7 +46,7 @@ abstract class AbstractHandler {
         return $this->handle($data);
     }
     
-    static protected function setPriority(mixed $data) {
+    static public function setPriority(mixed $data) {
         Bot::$session->set(DBSession::FIELD_PRIORITY_HANDLER, static::class);
         Bot::$session->set('data', $data);
     }
