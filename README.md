@@ -52,6 +52,8 @@ class CommandStart extends AbstractHandlerCommand {
 ```
 use losthost\telle\Bot;
 
+require 'vendor/autoload.php';
+
 // Инициализация бота
 Bot::setup();
 
