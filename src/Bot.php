@@ -67,9 +67,13 @@ class Bot {
             if (empty($ca_cert)) {
                 $ca_cert = __DIR__. "/cacert.pem";
             }
+            
+            if (empty($alt_server)) {
+                $alt_server = false;
+            }
         }
         
-        static::setupApi($token, $ca_cert);
+        static::setupApi($token, $ca_cert, $alt_server);
         static::setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix);
         date_default_timezone_set($timezone);
         static::$is_initialized = true;
@@ -81,6 +85,7 @@ class Bot {
             The file must contain:
                 \$token      = 'The_bot:token_received_from_BotFather';
                 \$ca_cert    = 'Path to cacert.pem'; // Can be ommited for *nix systems
+                \$alt_server = false; // set to true to use local telegram-bot-api server or use 'http://server.addr'
                 \$timezone   = 'Default/Timezone';
 
                 \$db_host    = 'your.database.host';
@@ -92,9 +97,15 @@ class Bot {
             END);
     }
 
-    static protected function setupApi($token,  $ca_cert) {
-        static::$api = new \TelegramBot\Api\BotApi($token); 
-        static::$api->setCurlOption(CURLOPT_CAINFO, $ca_cert);
+    static protected function setupApi($token,  $ca_cert, $alt_server) {
+        if ($alt_server === false) {
+            static::$api = new \TelegramBot\Api\BotApi($token); 
+            static::$api->setCurlOption(CURLOPT_CAINFO, $ca_cert);
+        } elseif($alt_server === true) {
+            static::$api = new \TelegramBot\Api\BotApi($token, null, 'http://localhost/bot'. $token);
+        } else {
+            static::$api = new \TelegramBot\Api\BotApi($token, null, $alt_server. '/bot'. $token);
+        }
     }
     
     static protected function setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix) {
