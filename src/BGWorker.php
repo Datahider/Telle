@@ -35,7 +35,7 @@ class BGWorker extends abst\AbstractBackgroundProcess {
 
         $this->init = true;
         
-        error_log("Worker $this->id is initialized.");
+        Bot::logComment("Worker $this->id is initialized", __FILE__, __LINE__);
         
     }
     
@@ -45,7 +45,7 @@ class BGWorker extends abst\AbstractBackgroundProcess {
             $this->init();
         }
 
-        error_log("Worker $this->id is started.");
+        Bot::logComment("Worker $this->id is started", __FILE__, __LINE__);
 
         while (1) {
             $pending_update = $this->getUpdate();

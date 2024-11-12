@@ -17,6 +17,6 @@ class TrackerLogger extends \losthost\DB\DBTracker {
     public function track(\losthost\DB\DBEvent $event) {
         $event_type = $event->typeName($event->type);
         $class = get_class($event->object);
-        error_log("TrackerLogger: Event $event_type came from $class.");
+        Bot::logComment("TrackerLogger: Event $event_type came from $class.");
     }
 }

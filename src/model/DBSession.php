@@ -16,7 +16,7 @@ class DBSession extends \losthost\DB\DBObject {
 
 const METADATA = [
     'id' => 'bigint UNSIGNED NOT NULL AUTO_INCREMENT',
-    'user' => 'bigint UNSIGNED NOT NULL',
+    'user' => 'bigint NOT NULL',
     'chat' => 'bigint NOT NULL',
     'message_thread_id' => 'bigint', 
     'mode' => 'varchar(128)',
@@ -37,15 +37,25 @@ const METADATA = [
         return DB::$prefix. 'telle_sessions';
     }
     
-    public function __construct(int|DBUser $user, null|int|DBChat $chat=null, null|int $message_thread_id=null) {
+    public function __construct(null|int|DBUser $user, null|int|DBChat $chat=null, null|int $message_thread_id=null) {
+        
+        if (is_a($chat, DBChat::class)) {
+            $chat = $chat->id;
+        }
         if (is_a($user, DBUser::class)) {
             $user = $user->id;
         }
         
+        if ($user === null) {
+            $user = $chat;
+        }
+        
         if ($chat === null) {
             $chat = $user;
-        } elseif (is_a($chat, DBChat::class)) {
-            $chat = $chat->id;
+        }
+        
+        if ($chat === null) {
+            throw new \Exception("Params \$user and \$chat can't both be NULL.");
         }
         
         parent::__construct(['user' => $user, 'chat' => $chat, 'message_thread_id' => $message_thread_id], true);

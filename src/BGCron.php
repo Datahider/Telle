@@ -81,13 +81,13 @@ class BGCron extends abst\AbstractBackgroundProcess {
     
     protected function startCronJob(DBCronEntry &$job) {
         if ($job->start_in_background) {
-            error_log("CRON: Starting job \"$job->job_class\" in background.");
+            Bot::logComment("CRON: Starting job \"$job->job_class\" in background", __FILE__, __LINE__);
             Bot::startClass($job->job_class, $job->job_args);
 
             $job->last_started = date_create();
             $job->last_result = self::JOB_RESULT_BACKGROUND;
         } else {
-            error_log("CRON: Starting job \"$job->job_class\" in cron thread.");
+            Bot::logComment("CRON: Starting job \"$job->job_class\" in cron thread", __FILE__, __LINE__);
             $job_object = new ($job->job_class)($job->job_args);
             try {
                 $job->last_started = date_create();
@@ -102,13 +102,13 @@ class BGCron extends abst\AbstractBackgroundProcess {
     
     protected function startPendingJob(DBPendingJob &$job) {
         if ($job->start_in_background) {
-            error_log("CRON: Starting job \"$job->job_class\" in background.");
+            Bot::logComment("CRON: Starting job \"$job->job_class\" in background", __FILE__, __LINE__);
             Bot::startClass($job->job_class, $job->job_args);
 
             $job->was_started = date_create();
             $job->result = self::JOB_RESULT_BACKGROUND;
         } else {
-            error_log("CRON: Starting job \"$job->job_class\" in cron thread.");
+            Bot::logComment("CRON: Starting job \"$job->job_class\" in cron thread", __FILE__, __LINE__);
             $job_object = new ($job->job_class)($job->job_args);
             try {
                 $job->was_started = date_create();
@@ -129,12 +129,12 @@ class BGCron extends abst\AbstractBackgroundProcess {
                 $job->last_started = date_create();
                 $job->last_result = self::JOB_RESULT_ERROR;
                 $job->last_error_description = "Class \"$job->job_class\" does not exist.";
-                error_log("CRON: Class \"$job->job_class\" does not exist.");
+                Bot::logComment("CRON: Class \"$job->job_class\" does not exist", __FILE__, __LINE__);
             } elseif (is_a($job, model\DBPendingJob::class)) {
                 $job->was_started = date_create();
                 $job->result = self::JOB_RESULT_ERROR;
                 $job->error_description = "Class \"$job->job_class\" does not exist.";
-                error_log("CRON: Class \"$job->job_class\" does not exist.");
+                error_log("CRON: Class \"$job->job_class\" does not exist", __FILE__, __LINE__);
             }
             $job->write();
         } 
