@@ -647,8 +647,8 @@ class Bot {
     }
     
     static protected function initByMyChatMember(\TelegramBot\Api\Types\ChatMemberUpdated &$chat_member) {
-        static::$update_type = static::UT_MY_CHAT_MEMBER;
         static::initByChatMember($chat_member);
+        static::$update_type = static::UT_MY_CHAT_MEMBER;
     }
     
     static protected function initByChatMember(\TelegramBot\Api\Types\ChatMemberUpdated &$chat_member) {
