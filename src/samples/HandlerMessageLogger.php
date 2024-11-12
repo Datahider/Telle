@@ -23,7 +23,7 @@ class HandlerMessageLogger extends \losthost\telle\abst\AbstractHandlerMessage {
     }
 
     protected function handle(\TelegramBot\Api\Types\Message &$message): bool {
-        error_log($this->text);
+        Bot::logComment($this->text);
         return false;
     }
     

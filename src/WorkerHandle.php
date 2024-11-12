@@ -44,13 +44,13 @@ class WorkerHandle {
         $result = fwrite($this->process, "$data\n");
 
         if ($result === false && !$depth) {
-            error_log("Can't send data to worker. Restarting...");
+            Bot::logComment("Can't send data to worker. Restarting...", __FILE__, __LINE__);
             $this->run();
             $this->send($data, $depth+1);
         } elseif ($result === false) {
-            error_log("Can't send data to worker. Sleeping...");
+            Bot::logComment("Can't send data to worker. Sleeping...", __FILE__, __LINE__);
             sleep(Bot::param('worker_restart_sleep', 5));
-            error_log("Restarting...");
+            Bot::logComment("Restarting...", __FILE__, __LINE__);
             $this->run();
             $this->send($data, $depth+1);
         }

@@ -13,19 +13,22 @@ use losthost\telle\Bot;
  *
  * @author drweb
  */
-class HandlerCommandStart extends \losthost\telle\abst\AbstractHandlerMessage {
+class HandlerCommandStart extends \losthost\telle\abst\AbstractHandlerCommand {
     
-    protected function check(\TelegramBot\Api\Types\Message &$message) : bool {
-        if (!$message) {
-            return false;
-        }
-        return (bool)preg_match("/^\/[Ss][Tt][Aa][Rr][Tt](\s.*)*$/", $message->getText());
-    }
-
+    const COMMAND = 'start';
+    
     protected function handle(\TelegramBot\Api\Types\Message &$message) : bool {
+        
+        $text = "Hi! This is an example /start command handler.";
+        
+        if ($this->args) {
+            $text .= "\nArgs given: <b>$this->args</b>";
+        } else {
+            $text .= "\nNo args given to this command.";
+        }
         Bot::$api->sendMessage(
             Bot::$chat->id,
-            "Hi! This is an example /start command handler"
+            $text, 'HTML'
         );
         return true;
     }
