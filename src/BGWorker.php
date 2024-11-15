@@ -52,7 +52,11 @@ class BGWorker extends abst\AbstractBackgroundProcess {
 
         while (1) {
             $pending_update = $this->getUpdate();
-            Bot::processHandlers($pending_update->data);
+            try {
+                Bot::processHandlers($pending_update->data);
+            } catch (\Exception $ex) {
+                Bot::logException($ex);
+            }
             $pending_update->delete();
         }
     }
