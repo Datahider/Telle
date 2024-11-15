@@ -6,6 +6,7 @@
  */
 namespace losthost\telle;
 use Exception;
+use losthost\telle\model\DBPendingUpdate;
 
 /**
  * Description of Bot
@@ -77,6 +78,7 @@ class Bot {
         
         static::setupApi($token, $ca_cert, $alt_server);
         static::setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix);
+        static::setupLogic();
         date_default_timezone_set($timezone);
         static::$is_initialized = true;
     }
@@ -119,6 +121,10 @@ class Bot {
         model\DBBotParam::initDataStructure();
         model\DBChat::initDataStructure();
         model\DBSession::initDataStructure();
+    }
+
+    static protected function setupLogic() {
+        require 'etc/logic.php';
     }
 
     /**

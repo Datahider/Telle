@@ -7,6 +7,9 @@
 
 namespace losthost\telle;
 
+use losthost\telle\Bot;
+use losthost\telle\model\DBPendingUpdate;
+
 /**
  * Description of Worker
  *
@@ -26,7 +29,6 @@ class BGWorker extends abst\AbstractBackgroundProcess {
         }
         $this->id = $id;
         
-        Bot::$api->setCurlOption(CURLOPT_CAINFO, Bot::getCaInfo());
         $this->init = false;
         
     }
