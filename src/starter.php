@@ -6,7 +6,7 @@ require_once "vendor/autoload.php";
 
 $thread = isset($argv[2]) ? $argv[2] : "bg";
 
-Bot::setup();
+Bot::setup($thread);
 
 $process_class = $argv[1];
 
