@@ -49,8 +49,8 @@ const METADATA = [
     
     static function truncate() {
         
-        $sql = 'TRUNCATE TABLE %TABLE_NAME%';
-        $sth = self::prepare($sql);
+        $sql = 'TRUNCATE TABLE [telle_pending_updates]';
+        $sth = DB::prepare($sql);
         $sth->execute();
     }
 }
