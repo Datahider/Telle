@@ -37,6 +37,7 @@ class BGWorker extends abst\AbstractBackgroundProcess {
 
         $this->init = true;
         
+        ini_set("error_log", "log/worker$this->id.log");
         Bot::logComment("Worker $this->id is initialized", __FILE__, __LINE__);
         
     }

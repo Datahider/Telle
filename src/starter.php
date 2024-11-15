@@ -4,6 +4,8 @@ namespace losthost\telle;
 
 require_once "vendor/autoload.php";
 
+$thread = isset($argv[2]) ? $argv[2] : "bg";
+
 Bot::setup();
 
 $process_class = $argv[1];

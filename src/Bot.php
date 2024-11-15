@@ -52,10 +52,15 @@ class Bot {
     public static string $language_code;
     public static string $update_type;
     
-    /**
+    public static string $working_thread;
+
+        /**
      * Setups Bot. Must be called before run()
      */
-    static public function setup() {
+    static public function setup(string $working_thread = 'self') {
+        
+        Bot::$working_thread = $working_thread;
+        
         if (!file_exists('etc/bot_config.php')) {
             static::throwConfigException('Config file etc/bot_config.php is not found.');
         }
@@ -263,9 +268,10 @@ class Bot {
         
         $date = date_create_immutable()->format('Y-m-d H:i:s.u');
         
-        ("$date - ". $ex->getMessage(). '('. $ex->getCode(). ')');
-        error_log("$date - ". $ex->getMessage());
-        error_log("$date - ". $ex->getTraceAsString());
+        $thread = Bot::$working_thread;
+        ("($thread)$date - ". $ex->getMessage(). '('. $ex->getCode(). ')');
+        error_log("($thread)$date - ". $ex->getMessage());
+        error_log("($thread)$date - ". $ex->getTraceAsString());
 
         if ($comment) {
             error_log("$date - $comment");
@@ -278,7 +284,8 @@ class Bot {
         if ($file) {
             $comment .= " in file $file ($line)";
         }
-        error_log("$date - $comment");
+        $thread = Bot::$working_thread;
+        error_log("($thread)$date - $comment");
     }
 
     static protected function processPriorityHandler($data) : bool {
