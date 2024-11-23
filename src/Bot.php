@@ -447,7 +447,7 @@ class Bot {
     static protected function tryGetUpdates() {
         static::$dbbp_bot_alive->value = time();
         if (!static::isAlive('cron', static::param('cron_alive_timeout', 60))) {
-            Bot::$cron = static::startCron();
+            static::startCron();
         }
         
         try {
@@ -564,7 +564,7 @@ class Bot {
     }
 
     static protected function startCron() {
-        pclose(static::startClass(BGCron::class));
+        Bot::$cron = static::startClass(BGCron::class);
     }
 
     static protected function startWorkers() {
