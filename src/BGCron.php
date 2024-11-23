@@ -23,6 +23,7 @@ class BGCron extends abst\AbstractBackgroundProcess {
     protected $sleep;
     
     public function __construct($sleep=null) {
+        ini_set("error_log", "log/worker.log");        
         if (empty($sleep)) {
             $sleep = Bot::param('cron_sleep_time', 10);
         }
@@ -83,6 +84,7 @@ class BGCron extends abst\AbstractBackgroundProcess {
         if ($job->start_in_background) {
             Bot::logComment("CRON: Starting job \"$job->job_class\" in background", __FILE__, __LINE__);
             Bot::startClass($job->job_class, $job->job_args);
+            Bot::logComment("CRON: \"$job->job_class\" started in background");
 
             $job->last_started = date_create();
             $job->last_result = self::JOB_RESULT_BACKGROUND;
