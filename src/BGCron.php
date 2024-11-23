@@ -23,7 +23,7 @@ class BGCron extends abst\AbstractBackgroundProcess {
     protected $sleep;
     
     public function __construct($sleep=null) {
-        ini_set("error_log", "log/worker.log");        
+        ini_set("error_log", "log/cron.log");        
         if (empty($sleep)) {
             $sleep = Bot::param('cron_sleep_time', 10);
         }
