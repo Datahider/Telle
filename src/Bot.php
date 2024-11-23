@@ -39,6 +39,7 @@ class Bot {
     protected static $handlers      = [];  
     protected static $workers       = [];
     protected static $param_cache   = [];
+    protected static $cron;  // Нужно для предотвращения тормозов, возникающих при отбрасывании хендлера открытого процесса
 
     protected static $dbbp_next_update_id;
     protected static $dbbp_bot_alive;
@@ -446,7 +447,7 @@ class Bot {
     static protected function tryGetUpdates() {
         static::$dbbp_bot_alive->value = time();
         if (!static::isAlive('cron', static::param('cron_alive_timeout', 60))) {
-            static::startCron();
+            Bot::$cron = static::startCron();
         }
         
         try {
@@ -563,7 +564,7 @@ class Bot {
     }
 
     static protected function startCron() {
-        static::startClass(BGCron::class);
+        pclose(static::startClass(BGCron::class));
     }
 
     static protected function startWorkers() {
