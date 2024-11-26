@@ -383,7 +383,7 @@ class Bot {
         if ($truncate_updates_on_startup->value) {
             DBPendingUpdate::truncate();
             while (1) {
-                $updates = static::$api->getUpdates(static::$dbbp_next_update_id->value, 100, static::param('telegram_update_timeout', 30));
+                $updates = static::$api->getUpdates(static::$dbbp_next_update_id->value, 100, 0);
                 if (!$updates) {
                     break;
                 }
