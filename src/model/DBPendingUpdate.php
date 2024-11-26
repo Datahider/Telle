@@ -22,7 +22,8 @@ const METADATA = [
             if ($worker === null || $max_processing_time === null) {
                 throw new \Exception('You must pass $worker and $max_processing_time for new pending update');
             }
-            parent::__construct(['id' => $update->getUpdateId()], true);
+            parent::__construct();
+            $this->id = $update->getUpdateId();
             $this->data = $update;
             $this->locked_till = time() + $max_processing_time;
             $this->worker = $worker;

@@ -499,8 +499,15 @@ class Bot {
                 $free_workers = static::getFreeWorkers();
             }
             
-            new DBPendingUpdate($update, $worker, static::param('max_processing_time', 15));
-            static::$workers[$worker]->send($update->getUpdateId());            
+            try {
+                new DBPendingUpdate($update, $worker, static::param('max_processing_time', 15));
+                static::$workers[$worker]->send($update->getUpdateId());            
+            } catch (\Exception $ex) {
+                // Не смогли записать, уже обрабатывается с прошлого падения
+                // Ну и хер с ним...
+                Bot::logException($ex);
+            }
+
         }
         static::$dbbp_next_update_id->value = $update->getUpdateId() + 1;
     }
