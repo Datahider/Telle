@@ -358,7 +358,7 @@ class Bot {
             if (!$processed
                     && self::$update_type == self::UT_MESSAGE
                     && $data->getText()
-                    && preg_match("/^\/([a-zA-Z0-9_]+)\s*(.*)$/", $data->getText())) {
+                    && preg_match("/^\/([a-zA-Z0-9_]+)\s*(.*)$/s", $data->getText())) {
                 $processed = self::processCommandHandlers($data);    
             }
             foreach ($handlers as $handler_class_name) {

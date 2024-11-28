@@ -21,7 +21,7 @@ abstract class AbstractHandlerCommand extends AbstractHandlerMessage {
     
     protected function check(\TelegramBot\Api\Types\Message &$message): bool {
         $m = [];
-        if (preg_match("/^\/([a-zA-Z0-9_]+)\s*(.*)$/", $message->getText(), $m) && (strtolower($m[1]) == static::COMMAND)) {
+        if (preg_match("/^\/([a-zA-Z0-9_]+)\s*(.*)$/s", $message->getText(), $m) && (strtolower($m[1]) == static::COMMAND)) {
             $this->args = $m[2];
             return true;
         }
