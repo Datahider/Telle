@@ -84,8 +84,16 @@ class Bot {
         
         static::setupApi($token, $ca_cert, $alt_server);
         static::setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix);
-        static::setupLogic();
         date_default_timezone_set($timezone);
+
+        $bot_username = new DBBotParam('bot_username');
+        $bot_userid = new DBBotParam('bot_userid');
+        $data = static::$api->getMe();
+        $bot_username->value = $data->getUsername();
+        $bot_userid->value = $data->getId();
+
+        
+        static::setupLogic();
         static::$is_initialized = true;
     }
     

@@ -3,6 +3,7 @@
 namespace losthost\telle\abst;
 
 use Exception;
+use losthost\telle\Bot;
 
 abstract class AbstractHandlerCommand extends AbstractHandlerMessage {
     
@@ -21,9 +22,11 @@ abstract class AbstractHandlerCommand extends AbstractHandlerMessage {
     
     protected function check(\TelegramBot\Api\Types\Message &$message): bool {
         $m = [];
-        if (preg_match("/^\/([a-zA-Z0-9_]+)\s*(.*)$/s", $message->getText(), $m) && (strtolower($m[1]) == static::COMMAND)) {
-            $this->args = $m[2];
-            return true;
+        if (preg_match("/^\/([a-zA-Z0-9_]+)(@[a-zA-Z0-9_]+)?\s+(.*)$/s", $message->getText(), $m) && (strtolower($m[1]) == static::COMMAND)) {
+            $this->args = $m[3];
+            if (!$m[2] || $m[2] == '@'. Bot::param('bot_username', null)) {
+                return true;
+            }
         }
         return false;
     }
