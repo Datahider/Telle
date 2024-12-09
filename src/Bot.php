@@ -7,6 +7,7 @@
 namespace losthost\telle;
 use Exception;
 use losthost\telle\model\DBPendingUpdate;
+use losthost\telle\model\DBBotParam;
 
 /**
  * Description of Bot
