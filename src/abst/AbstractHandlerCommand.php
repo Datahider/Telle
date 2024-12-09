@@ -23,8 +23,8 @@ abstract class AbstractHandlerCommand extends AbstractHandlerMessage {
     protected function check(\TelegramBot\Api\Types\Message &$message): bool {
         $m = [];
         if (preg_match("/^\/([a-zA-Z0-9_]+)(@[a-zA-Z0-9_]+)?(\s+(.*))?$/s", $message->getText(), $m) && (strtolower($m[1]) == static::COMMAND)) {
-            $this->args = $m[4];
-            if (!$m[2] || $m[2] == '@'. Bot::param('bot_username', null)) {
+            $this->args = isset($m[4]) ? $m[4] : '';
+            if (empty($m[2]) || $m[2] == '@'. Bot::param('bot_username', null)) {
                 return true;
             }
         }
