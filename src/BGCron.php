@@ -136,7 +136,7 @@ class BGCron extends abst\AbstractBackgroundProcess {
                 $job->was_started = date_create();
                 $job->result = self::JOB_RESULT_ERROR;
                 $job->error_description = "Class \"$job->job_class\" does not exist.";
-                error_log("CRON: Class \"$job->job_class\" does not exist", __FILE__, __LINE__);
+                Bot::logComment("CRON: Class \"$job->job_class\" does not exist", __FILE__, __LINE__);
             }
             $job->write();
         } 
