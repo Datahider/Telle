@@ -211,12 +211,9 @@ class Bot {
      */
     static protected function handle() {
         $data = \TelegramBot\Api\BotApi::jsonValidate(static::getRawBody(), true);
-        $updates = \TelegramBot\Api\Types\ArrayOfUpdates::fromResponse($data);
-        
-        foreach ($updates as $update) 
-        {
-            static::processHandlers($update);
-        }
+        $update = \TelegramBot\Api\Types\Update::fromResponse($data);
+        static::processHandlers($update);
+        return;
     }
     
     /**
