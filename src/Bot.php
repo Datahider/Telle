@@ -47,6 +47,8 @@ class Bot {
     
     protected static $is_initialized = false;
     
+    protected static $me;
+    
     public static ?model\DBUser $user;
     public static ?model\DBChat $chat;
     public static ?int $message_thread_id;
@@ -89,13 +91,20 @@ class Bot {
 
         $bot_username = new DBBotParam('bot_username');
         $bot_userid = new DBBotParam('bot_userid');
-        $data = static::$api->getMe();
+        $data = static::getMe();
         $bot_username->value = $data->getUsername();
         $bot_userid->value = $data->getId();
 
         
         static::setupLogic();
         static::$is_initialized = true;
+    }
+    
+    static public function getMe() {
+        if (!isset(static::$me)) {
+            static::$me = static::$api->getMe(); 
+        }
+        return static::$me;
     }
     
     static protected function throwConfigException($text) {
