@@ -69,16 +69,16 @@
         },
         {
             "name": "losthost/db",
-            "version": "v3.0.12-beta",
+            "version": "3.0.13-beta",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Datahider/DB.git",
-                "reference": "a4fc9d668945498180e1f7e20265e4aaf866a828"
+                "reference": "21115910ca803cedc6b9d79fa6f732f2ae5892f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/DB/zipball/a4fc9d668945498180e1f7e20265e4aaf866a828",
-                "reference": "a4fc9d668945498180e1f7e20265e4aaf866a828",
+                "url": "https://api.github.com/repos/Datahider/DB/zipball/21115910ca803cedc6b9d79fa6f732f2ae5892f8",
+                "reference": "21115910ca803cedc6b9d79fa6f732f2ae5892f8",
                 "shasum": ""
             },
             "require": {
@@ -114,9 +114,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Datahider/DB/issues",
-                "source": "https://github.com/Datahider/DB/tree/v3.0.12-beta"
+                "source": "https://github.com/Datahider/DB/tree/3.0.13-beta"
             },
-            "time": "2024-06-01T15:12:44+00:00"
+            "time": "2024-11-16T04:12:38+00:00"
         },
         {
             "name": "telegram-bot/api",
@@ -124,12 +124,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/TelegramBot/Api.git",
-                "reference": "36085b28e5001f354cfd9b53c874b00b85218c01"
+                "reference": "fee16552382002e7fb26193552cac4c28bce552d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TelegramBot/Api/zipball/36085b28e5001f354cfd9b53c874b00b85218c01",
-                "reference": "36085b28e5001f354cfd9b53c874b00b85218c01",
+                "url": "https://api.github.com/repos/TelegramBot/Api/zipball/fee16552382002e7fb26193552cac4c28bce552d",
+                "reference": "fee16552382002e7fb26193552cac4c28bce552d",
                 "shasum": ""
             },
             "require": {
@@ -192,7 +192,7 @@
                 "issues": "https://github.com/TelegramBot/Api/issues",
                 "source": "https://github.com/TelegramBot/Api/tree/master"
             },
-            "time": "2024-08-29T14:23:33+00:00"
+            "time": "2025-05-23T04:04:23+00:00"
         },
         {
             "name": "webmozart/assert",

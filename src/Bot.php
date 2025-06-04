@@ -16,7 +16,7 @@ use losthost\telle\model\DBBotParam;
  */
 class Bot {
 
-    public static \TelegramBot\Api\BotApi $api;
+    public static ExtendedApi $api;
 
     const UT_CALLBACK_QUERY         = 'callback_query';
     const UT_CHANNEL_POST           = 'channel_post';
@@ -41,6 +41,7 @@ class Bot {
     protected static $workers       = [];
     protected static $param_cache   = [];
     protected static $cron;  // Нужно для предотвращения тормозов, возникающих при отбрасывании хендлера открытого процесса
+    protected static $allowed_updates;
 
     protected static $dbbp_next_update_id;
     protected static $dbbp_bot_alive;
@@ -85,6 +86,38 @@ class Bot {
             }
         }
         
+        if (is_array($allowed_updates)) {
+            static::$allowed_updates = $allowed_updates;
+        } elseif ($allowed_updates == 'all') {
+            static::$allowed_updates = [
+                "message",
+                "edited_message",
+                "channel_post",
+                "edited_channel_post",
+                "business_connection",
+                "business_message",
+                "edited_business_message",
+                "deleted_business_messages",
+                "message_reaction",
+                "message_reaction_count",
+                "inline_query",
+                "chosen_inline_result",
+                "callback_query",
+                "shipping_query",
+                "pre_checkout_query",
+                "purchased_paid_media",
+                "poll",
+                "poll_answer",
+                "my_chat_member",
+                "chat_member",
+                "chat_join_request",
+                "chat_boost",
+                "removed_chat_boost",
+            ];
+        } else {
+            static::$allowed_updates = [];
+        }
+        
         static::setupApi($token, $ca_cert, $alt_server);
         static::setupDB($db_host, $db_user, $db_pass, $db_name, $db_prefix);
         date_default_timezone_set($timezone);
@@ -114,6 +147,7 @@ class Bot {
                 \$token      = 'The_bot:token_received_from_BotFather';
                 \$ca_cert    = 'Path to cacert.pem'; // Can be ommited for *nix systems
                 \$alt_server = false; // set to true to use local telegram-bot-api server or use 'http://server.addr'
+                \$allowed_updates = 'standard'; // Use 'standard', 'all' or array of strings
                 \$timezone   = 'Default/Timezone';
 
                 \$db_host    = 'your.database.host';
@@ -127,12 +161,12 @@ class Bot {
 
     static protected function setupApi($token,  $ca_cert, $alt_server) {
         if ($alt_server === false) {
-            static::$api = new \TelegramBot\Api\BotApi($token); 
+            static::$api = new ExtendedApi($token); 
             static::$api->setCurlOption(CURLOPT_CAINFO, $ca_cert);
         } elseif($alt_server === true) {
-            static::$api = new \TelegramBot\Api\BotApi($token, null, 'http://localhost/bot'. $token);
+            static::$api = new ExtendedApi($token, null, 'http://localhost/bot'. $token);
         } else {
-            static::$api = new \TelegramBot\Api\BotApi($token, null, $alt_server. '/bot'. $token);
+            static::$api = new ExtendedApi($token, null, $alt_server. '/bot'. $token);
         }
     }
     
@@ -148,7 +182,7 @@ class Bot {
     }
 
     static protected function setupLogic() {
-        require 'etc/logic.php';
+        include 'etc/logic.php';
     }
 
     /**
@@ -219,7 +253,7 @@ class Bot {
      * Handles requests in web-server mode (callback)
      */
     static protected function handle() {
-        $data = \TelegramBot\Api\BotApi::jsonValidate(static::getRawBody(), true);
+        $data = ExtendedApi::jsonValidate(static::getRawBody(), true);
         $update = \TelegramBot\Api\Types\Update::fromResponse($data);
         static::processHandlers($update);
         return;
@@ -398,7 +432,7 @@ class Bot {
         if ($truncate_updates_on_startup->value) {
             DBPendingUpdate::truncate();
             while (1) {
-                $updates = static::$api->getUpdates(static::$dbbp_next_update_id->value, 100, 0);
+                $updates = static::$api->getUpdates(static::$dbbp_next_update_id->value, 100, 0, static::$allowed_updates);
                 if (!$updates) {
                     break;
                 }
@@ -466,7 +500,7 @@ class Bot {
         }
         
         try {
-            $updates = static::$api->getUpdates(static::$dbbp_next_update_id->value, 100, static::param('get_updates_timeout', 10));
+            $updates = static::$api->getUpdates(static::$dbbp_next_update_id->value, 100, static::param('get_updates_timeout', 10), static::$allowed_updates);
             if ($updates) {
                 return $updates;
             }
