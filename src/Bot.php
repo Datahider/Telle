@@ -32,6 +32,8 @@ class Bot {
     const UT_MY_CHAT_MEMBER         = 'my_chat_member';
     const UT_CHAT_MEMBER            = 'chat_member';
     const UT_CHAT_JOIN_REQUEST      = 'chat_join_request';
+    const UT_MESSAGE_REACTION       = 'message_reaction';
+    const UT_MESSAGE_REACTION_COUNT = 'message_reaction_count';
     const UT_COMMAND                = 'command';
 
     const BG_STARTER_WINDOWS        = 'start /b php "'. __DIR__. '/starter.php" %s %s';
@@ -313,6 +315,10 @@ class Bot {
                 return $update->getPreCheckoutQuery();
             case static::UT_SHIPPING_QUERY:
                 return $update->getShippingQuery();
+            case static::UT_MESSAGE_REACTION:
+                return $update->getMessageReaction();
+            case static::UT_MESSAGE_REACTION_COUNT:
+                return $update->getMessageReactionCount();
             default:
                 throw new Exception("Unknown update type.");
         }
@@ -687,6 +693,10 @@ class Bot {
             static::initByChatMember($chat_member);
         } elseif ($chat_join_request = $update->getChatJoinRequest()) {
             static::initByMyChatMember($chat_join_request);
+        } elseif ($message_reaction = $update->getMessageReaction()) {
+            static::initByMessageReaction($message_reaction);
+        } elseif ($message_reaction_count = $update->getMessageReactionCount()) {
+            static::initByMessageReactionCount($message_reaction_count);
         } else {
             throw new \Exception("Can't load Env.");
         }
@@ -810,6 +820,28 @@ class Bot {
         static::$user = new model\DBUser($from);
 
         $chat = $chat_join_request->getChat();
+        static::$chat = new model\DBChat($chat);
+        
+        static::$message_thread_id = null;
+    }
+    
+    static protected function initByMessageReaction(\TelegramBot\Api\Types\MessageReactionUpdated &$message_reaction) {
+        static::$update_type = static::UT_MESSAGE_REACTION;
+        $from = $message_reaction->getUser();
+        static::$user = new model\DBUser($from);
+        
+        $chat = $message_reaction->getChat();
+        static::$chat = new model\DBChat($chat);
+        
+        static::$message_thread_id = null;
+    }
+    
+    static protected function initByMessageReactionCount(\TelegramBot\Api\Types\MessageReactionCountUpdated &$message_reaction_count) {
+        static::$update_type = static::UT_MESSAGE_REACTION_COUNT;
+
+        static::$user = null;
+        
+        $chat = $message_reaction_count->getChat();
         static::$chat = new model\DBChat($chat);
         
         static::$message_thread_id = null;
