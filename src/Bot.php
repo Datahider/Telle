@@ -224,6 +224,10 @@ class Bot {
             static::$handlers[static::UT_PRE_CHECKOUT_QUERY][] = $handler_class_name;
         } elseif (is_a($handler_class_name, abst\AbstractHandlerShippingQuery::class, true)) {
             self::$handlers[self::UT_SHIPPING_QUERY][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerMessageReaction::class, true)) {
+            self::$handlers[self::UT_MESSAGE_REACTION][] = $handler_class_name;
+        } elseif (is_a($handler_class_name, abst\AbstractHandlerMessageReactionCount::class, true)) {
+            self::$handlers[self::UT_MESSAGE_REACTION_COUNT][] = $handler_class_name;
         } else {
             throw new \Exception('The handler must be a descendant of one of abstract handlers.');
         }
