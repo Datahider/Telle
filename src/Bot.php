@@ -325,16 +325,19 @@ class Bot {
     }
 
     static public function logException(\Exception $ex, string $comment='',) {
-        
+        static::logThrowable($ex, $comment);
+    }
+    
+    static public function logThrowable(\Throwable $e, string $comment='') {
         $date = date_create_immutable()->format('Y-m-d H:i:s.u');
         
         $thread = Bot::$working_thread;
-        ("($thread)$date - ". $ex->getMessage(). '('. $ex->getCode(). ')');
-        error_log("($thread)$date - ". $ex->getMessage());
-        error_log("($thread)$date - ". $ex->getTraceAsString());
+        ("($thread)$date - ". $e->getMessage(). '('. $e->getCode(). ')');
+        error_log("($thread)$date - ". $e->getMessage());
+        error_log("($thread)$date - ". $e->getTraceAsString());
 
         if ($comment) {
-            error_log("$date - $comment");
+            error_log("($thread)$date - $comment");
         }
     }
     
