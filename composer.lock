@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed675e8a78996853f94aa346999b280a",
+    "content-hash": "7466c43a816204ef7ef07248d8997f75",
     "packages": [
         {
             "name": "dragonmantank/cron-expression",
@@ -68,17 +68,57 @@
             "time": "2023-08-10T19:36:49+00:00"
         },
         {
-            "name": "losthost/db",
-            "version": "3.0.13-beta",
+            "name": "losthost/background-process",
+            "version": "1.1.11",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Datahider/DB.git",
-                "reference": "21115910ca803cedc6b9d79fa6f732f2ae5892f8"
+                "url": "https://github.com/Datahider/BackgroundProcess.git",
+                "reference": "30c09129e1a1b930374f6523b8c2e9008f17bc74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/DB/zipball/21115910ca803cedc6b9d79fa6f732f2ae5892f8",
-                "reference": "21115910ca803cedc6b9d79fa6f732f2ae5892f8",
+                "url": "https://api.github.com/repos/Datahider/BackgroundProcess/zipball/30c09129e1a1b930374f6523b8c2e9008f17bc74",
+                "reference": "30c09129e1a1b930374f6523b8c2e9008f17bc74",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "11.5.44"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "losthost\\BackgroundProcess\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "drweb",
+                    "email": "pio@pio.su"
+                }
+            ],
+            "description": "Lightweight and secure PHP library for running code in background processes",
+            "support": {
+                "issues": "https://github.com/Datahider/BackgroundProcess/issues",
+                "source": "https://github.com/Datahider/BackgroundProcess/tree/1.1.11"
+            },
+            "time": "2025-12-10T13:55:08+00:00"
+        },
+        {
+            "name": "losthost/db",
+            "version": "v3.4.0-beta",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Datahider/DB.git",
+                "reference": "c86e7c5820397eb8008695d73e39cb8536f5f8b0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Datahider/DB/zipball/c86e7c5820397eb8008695d73e39cb8536f5f8b0",
+                "reference": "c86e7c5820397eb8008695d73e39cb8536f5f8b0",
                 "shasum": ""
             },
             "require": {
@@ -114,9 +154,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Datahider/DB/issues",
-                "source": "https://github.com/Datahider/DB/tree/3.0.13-beta"
+                "source": "https://github.com/Datahider/DB/tree/v3.4.0-beta"
             },
-            "time": "2024-11-16T04:12:38+00:00"
+            "time": "2025-12-03T17:59:26+00:00"
         },
         {
             "name": "telegram-bot/api",
@@ -124,12 +164,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/TelegramBot/Api.git",
-                "reference": "fee16552382002e7fb26193552cac4c28bce552d"
+                "reference": "a8edf2e69554e2bd0bb63cad7b6d71f1d514d1b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TelegramBot/Api/zipball/fee16552382002e7fb26193552cac4c28bce552d",
-                "reference": "fee16552382002e7fb26193552cac4c28bce552d",
+                "url": "https://api.github.com/repos/TelegramBot/Api/zipball/a8edf2e69554e2bd0bb63cad7b6d71f1d514d1b2",
+                "reference": "a8edf2e69554e2bd0bb63cad7b6d71f1d514d1b2",
                 "shasum": ""
             },
             "require": {
@@ -192,32 +232,32 @@
                 "issues": "https://github.com/TelegramBot/Api/issues",
                 "source": "https://github.com/TelegramBot/Api/tree/master"
             },
-            "time": "2025-05-23T04:04:23+00:00"
+            "time": "2025-07-10T12:31:50+00:00"
         },
         {
             "name": "webmozart/assert",
-            "version": "1.11.0",
+            "version": "1.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozarts/assert.git",
-                "reference": "11cb2199493b2f8a3b53e7f19068fc6aac760991"
+                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/11cb2199493b2f8a3b53e7f19068fc6aac760991",
-                "reference": "11cb2199493b2f8a3b53e7f19068fc6aac760991",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/9be6926d8b485f55b9229203f962b51ed377ba68",
+                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68",
                 "shasum": ""
             },
             "require": {
                 "ext-ctype": "*",
+                "ext-date": "*",
+                "ext-filter": "*",
                 "php": "^7.2 || ^8.0"
             },
-            "conflict": {
-                "phpstan/phpstan": "<0.12.20",
-                "vimeo/psalm": "<4.6.1 || 4.6.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.5.13"
+            "suggest": {
+                "ext-intl": "",
+                "ext-simplexml": "",
+                "ext-spl": ""
             },
             "type": "library",
             "extra": {
@@ -248,9 +288,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/1.11.0"
+                "source": "https://github.com/webmozarts/assert/tree/1.12.1"
             },
-            "time": "2022-06-03T18:03:27+00:00"
+            "time": "2025-10-29T15:56:20+00:00"
         }
     ],
     "packages-dev": [],
@@ -264,6 +304,6 @@
     "platform": {
         "php": ">=8.1.1"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

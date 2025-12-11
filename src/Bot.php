@@ -8,6 +8,8 @@ namespace losthost\telle;
 use Exception;
 use losthost\telle\model\DBPendingUpdate;
 use losthost\telle\model\DBBotParam;
+use losthost\BackgroundProcess\BackgroundProcess;
+use losthost\DB\DBValue;
 
 /**
  * Description of Bot
@@ -39,8 +41,10 @@ class Bot {
     const BG_STARTER_WINDOWS        = 'start /b php "'. __DIR__. '/starter.php" %s %s';
     const BG_STARTER_UNIX           = 'php "'. __DIR__. '/starter.php" %s %s >/dev/null 2>&1';
 
-    protected static $handlers      = [];  
-    protected static $workers       = [];
+    protected static array $handlers      = [];
+    
+    /** @var BackgroundProcess[] $workers */
+    protected static array $workers = [];
     protected static $param_cache   = [];
     protected static $cron;  // Нужно для предотвращения тормозов, возникающих при отбрасывании хендлера открытого процесса
     protected static $allowed_updates;
@@ -276,11 +280,7 @@ class Bot {
         
         static::truncatePending(new model\DBBotParam('truncate_updates_on_startup', ''));
         
-        if ( static::param('workers_count', 1) <= 1) {
-            static::selfProcessing();
-        } else {
-            static::backgroundProcessing();
-        }
+        static::backgroundProcessing();
         
         throw new \Exception("Standalone process finished unexpectedly.");
     }
@@ -490,11 +490,6 @@ class Bot {
 
     static protected function getUpdates() {
         
-        $updates = static::getPendingUpdates();
-        if ($updates) {
-            return $updates;
-        }
-        
         while (1) {
             $updates = static::tryGetUpdates();
             if ($updates) {
@@ -539,14 +534,23 @@ class Bot {
     }
     
     static protected function backgroundProcessing() {
-        static::startWorkers();
+ 
+        static::checkWorkers();
         
         while (1) {
             $updates = static::getUpdates();
-            static::dispatchUpdates($updates);
+            static::enqueueUpdates($updates);
+            static::checkWorkers();
         }
     }
 
+    static protected function enqueueUpdates(array $updates) {
+        foreach ($updates as $update) {
+            DBPendingUpdate::add($update);
+            static::$dbbp_next_update_id->value = $update->getUpdateId() + 1;
+        }
+    }
+    
     static function dispatchUpdates($updates=[]) {
         
         $free_workers = static::getFreeWorkers();
@@ -633,19 +637,20 @@ class Bot {
         Bot::$cron = static::startClass(BGCron::class);
     }
 
-    static protected function startWorkers() {
-        
-        $workers_count = static::param('workers_count', 1);
-        for ($index = 0; $index < $workers_count; $index++) {
-            
-            $worker_start_cmd = static::getStartCmd(BGWorker::class, $index);
-            $wh = new \losthost\telle\WorkerHandle($worker_start_cmd, $index);
-            $wh->run();
-            
-            static::$workers[$index] = $wh;
+    static protected function checkWorkers() {
+        /** @var BackgroundProcess $worker */
+        $lock = new DBValue(Worker::LOCK_GET, [Worker::LOCK_IDLE, 0]);
+        if ($lock->locked > 0) {
+            $worker_template = file_get_contents(__DIR__. '/worker-template.php');
+            if ($worker_template === false) {
+                throw new \RuntimeException("Can't open worker-template.php file");
+            }
+            BackgroundProcess::create($worker_template)
+                    ->run(uniqid('w', true));
+            new DBValue(Worker::LOCK_RELEASE, Worker::LOCK_IDLE);
         }
     }
-
+    
     static public function getCaInfo() {
         return static::$cacert;
     }
