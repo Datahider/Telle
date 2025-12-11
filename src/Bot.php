@@ -646,7 +646,7 @@ class Bot {
                 throw new \RuntimeException("Can't open worker-template.php file");
             }
             BackgroundProcess::create($worker_template)
-                    ->run(uniqid('w', true));
+                    ->run(uniqid('w'));
             new DBValue(Worker::LOCK_RELEASE, Worker::LOCK_IDLE);
         }
     }
