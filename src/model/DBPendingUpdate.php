@@ -85,7 +85,7 @@ class DBPendingUpdate extends DBObject {
                     . self::CONVERSATION_ID_DELIMITER
                     . '0';
         } elseif ($update->getMyChatMember()) {
-            return $update->getMyChatMember()->getChat()
+            return $update->getMyChatMember()->getChat()->getId()
                     . self::CONVERSATION_ID_DELIMITER
                     . '0';
         } elseif ($update->getPoll()) {
