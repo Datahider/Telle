@@ -51,7 +51,7 @@ class Worker {
 
     protected function getIdleLock() {
         $lock = DB::getLock(self::LOCK_IDLE, $this->lock_timeout);
-        if ($lock->locked == 0) {
+        if (!$lock) {
             Bot::logComment("Couldn't obtain LOCK_IDLE. Dieing.");
             die;
         }
@@ -63,7 +63,7 @@ class Worker {
             $now_in_queue = $this->getConversations(); // Получает массив conversation_id
             foreach ($now_in_queue as $conversation_id) {
                 $lock = DB::getLock($conversation_id);
-                if ($lock->locked > 0) {
+                if ($lock) {
                     Bot::logComment("Locked $conversation_id");
                     $this->conversation_id = $conversation_id;
                     DB::releaseLock(self::LOCK_IDLE);

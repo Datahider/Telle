@@ -644,7 +644,7 @@ class Bot {
     static protected function checkWorkers() {
         /** @var BackgroundProcess $worker */
         $lock = DB::getLock(Worker::LOCK_IDLE);
-        if ($lock->locked > 0) {
+        if ($lock) {
             $worker_template = file_get_contents(__DIR__. '/worker-template.php');
             if ($worker_template === false) {
                 throw new \RuntimeException("Can't open worker-template.php file");
