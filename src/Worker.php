@@ -91,7 +91,7 @@ class Worker {
                 Bot::processHandlers($queued_update->data);
             } catch (\Throwable $e) {
                 // Ничего не делаем. Забиваем на этот апдейт раз он кривой
-                Bot::logException($e);
+                Bot::logThrowable($e);
             }
             $queued_update->delete();
         }
