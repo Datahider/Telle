@@ -10,6 +10,7 @@ use losthost\telle\model\DBPendingUpdate;
 use losthost\telle\model\DBBotParam;
 use losthost\BackgroundProcess\BackgroundProcess;
 use losthost\DB\DBValue;
+use losthost\DB\DB;
 
 /**
  * Description of Bot
@@ -642,7 +643,7 @@ class Bot {
 
     static protected function checkWorkers() {
         /** @var BackgroundProcess $worker */
-        $lock = new DBValue(Worker::LOCK_GET, [Worker::LOCK_IDLE, 0]);
+        $lock = DB::getLock(Worker::LOCK_IDLE);
         if ($lock->locked > 0) {
             $worker_template = file_get_contents(__DIR__. '/worker-template.php');
             if ($worker_template === false) {
@@ -650,7 +651,7 @@ class Bot {
             }
             BackgroundProcess::create($worker_template)
                     ->run(uniqid('w'));
-            new DBValue(Worker::LOCK_RELEASE, Worker::LOCK_IDLE);
+            DB::releaseLock(Worker::LOCK_IDLE);
         }
     }
     

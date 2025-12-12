@@ -12,8 +12,6 @@ use losthost\BackgroundProcess\BackgroundProcess;
 class Worker {
     
     const LOCK_IDLE = 'idle';
-    const LOCK_GET = 'SELECT GET_LOCK(?, ?) AS locked';
-    const LOCK_RELEASE = 'SELECT RELEASE_LOCK(?) AS released';
     
     const SELECT_CONVERSATIONS = 'SELECT DISTINCT conversation_id FROM [telle_pending_updates] ORDER BY RAND()';
     
@@ -52,7 +50,7 @@ class Worker {
     }
 
     protected function getIdleLock() {
-        $lock = new DBValue(self::LOCK_GET, [self::LOCK_IDLE, $this->lock_timeout]);
+        $lock = DB::getLock(self::LOCK_IDLE, $this->lock_timeout);
         if ($lock->locked == 0) {
             Bot::logComment("Couldn't obtain LOCK_IDLE. Dieing.");
             die;
@@ -64,11 +62,11 @@ class Worker {
         while (true) {
             $now_in_queue = $this->getConversations(); // Получает массив conversation_id
             foreach ($now_in_queue as $conversation_id) {
-                $lock = new DBValue(self::LOCK_GET, [$conversation_id, 0]);
+                $lock = DB::getLock($conversation_id);
                 if ($lock->locked > 0) {
                     Bot::logComment("Locked $conversation_id");
                     $this->conversation_id = $conversation_id;
-                    new DBValue(self::LOCK_RELEASE, self::LOCK_IDLE);
+                    DB::releaseLock(self::LOCK_IDLE);
                     Bot::logComment("Released LOCK_IDLE");
                     return;
                 }
@@ -98,7 +96,7 @@ class Worker {
             $queued_update->delete();
         }
         
-        new DBValue(self::LOCK_RELEASE, $this->conversation_id);
+        DB::releaseLock($this->conversation_id);
         Bot::logComment("Released $this->conversation_id");
         $this->conversation_id = null;
     }
