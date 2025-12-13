@@ -80,8 +80,10 @@ class Worker {
         if ($worker_template === false) {
             throw new \RuntimeException("Can't open worker-template.php file");
         }
-        BackgroundProcess::create($worker_template)
-                    ->run(uniqid('w'));        
+        if (DB::isFreeLock(self::LOCK_IDLE)) {
+            BackgroundProcess::create($worker_template)
+                        ->run(uniqid('w'));        
+        }
     }
     
     protected function doJob() {

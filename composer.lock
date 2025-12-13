@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7466c43a816204ef7ef07248d8997f75",
+    "content-hash": "bbf4cbd05448d2a0ec30ce73a21197a7",
     "packages": [
         {
             "name": "dragonmantank/cron-expression",
@@ -69,16 +69,16 @@
         },
         {
             "name": "losthost/background-process",
-            "version": "1.1.11",
+            "version": "1.1.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Datahider/BackgroundProcess.git",
-                "reference": "30c09129e1a1b930374f6523b8c2e9008f17bc74"
+                "reference": "21c93299bb61cca56acd97af4371a1a7a7102255"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/BackgroundProcess/zipball/30c09129e1a1b930374f6523b8c2e9008f17bc74",
-                "reference": "30c09129e1a1b930374f6523b8c2e9008f17bc74",
+                "url": "https://api.github.com/repos/Datahider/BackgroundProcess/zipball/21c93299bb61cca56acd97af4371a1a7a7102255",
+                "reference": "21c93299bb61cca56acd97af4371a1a7a7102255",
                 "shasum": ""
             },
             "require-dev": {
@@ -103,22 +103,22 @@
             "description": "Lightweight and secure PHP library for running code in background processes",
             "support": {
                 "issues": "https://github.com/Datahider/BackgroundProcess/issues",
-                "source": "https://github.com/Datahider/BackgroundProcess/tree/1.1.11"
+                "source": "https://github.com/Datahider/BackgroundProcess/tree/1.1.14"
             },
-            "time": "2025-12-10T13:55:08+00:00"
+            "time": "2025-12-11T20:34:37+00:00"
         },
         {
             "name": "losthost/db",
-            "version": "v3.4.0-beta",
+            "version": "v3.5.0-beta",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Datahider/DB.git",
-                "reference": "c86e7c5820397eb8008695d73e39cb8536f5f8b0"
+                "reference": "0f2ecd2fed938581d40c124874dc14e0554d6c27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Datahider/DB/zipball/c86e7c5820397eb8008695d73e39cb8536f5f8b0",
-                "reference": "c86e7c5820397eb8008695d73e39cb8536f5f8b0",
+                "url": "https://api.github.com/repos/Datahider/DB/zipball/0f2ecd2fed938581d40c124874dc14e0554d6c27",
+                "reference": "0f2ecd2fed938581d40c124874dc14e0554d6c27",
                 "shasum": ""
             },
             "require": {
@@ -154,9 +154,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Datahider/DB/issues",
-                "source": "https://github.com/Datahider/DB/tree/v3.4.0-beta"
+                "source": "https://github.com/Datahider/DB/tree/v3.5.0-beta"
             },
-            "time": "2025-12-03T17:59:26+00:00"
+            "time": "2025-12-13T09:21:37+00:00"
         },
         {
             "name": "telegram-bot/api",

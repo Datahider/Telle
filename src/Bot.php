@@ -643,15 +643,13 @@ class Bot {
 
     static protected function checkWorkers() {
         /** @var BackgroundProcess $worker */
-        $lock = DB::getLock(Worker::LOCK_IDLE);
-        if ($lock) {
+        if (DB::isFreeLock(Worker::LOCK_IDLE)) {
             $worker_template = file_get_contents(__DIR__. '/worker-template.php');
             if ($worker_template === false) {
                 throw new \RuntimeException("Can't open worker-template.php file");
             }
             BackgroundProcess::create($worker_template)
                     ->run(uniqid('w'));
-            DB::releaseLock(Worker::LOCK_IDLE);
         }
     }
     
