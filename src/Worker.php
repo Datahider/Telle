@@ -89,18 +89,30 @@ class Worker {
     protected function doJob() {
         
         while ($queued_update = $this->getQueuedUpdate()) {
-            try {
-                Bot::processHandlers($queued_update->data);
-            } catch (\Throwable $e) {
-                // Ничего не делаем. Забиваем на этот апдейт раз он кривой
-                Bot::logThrowable($e);
-            }
-            $queued_update->delete();
+            $this->processQueuedUpdate($queued_update);
         }
-        
+
         DB::releaseLock($this->conversation_id);
         Bot::logComment("Released $this->conversation_id");
         $this->conversation_id = null;
+    }
+
+    protected function processQueuedUpdate(DBPendingUpdate $queued_update) : void {
+        try {
+            $this->handleQueuedUpdate($queued_update);
+        } catch (\Throwable $e) {
+            // Ничего не делаем. Забиваем на этот апдейт раз он кривой
+            Bot::logThrowable($e);
+        }
+        if (DB::inTransaction()) {
+            Bot::logComment("Unfinished transaction rolled back");
+            DB::rollBack();
+        }
+        $queued_update->delete();
+    }
+
+    protected function handleQueuedUpdate(DBPendingUpdate $queued_update) : void {
+        Bot::processHandlers($queued_update->data);
     }
  
     protected function getConversations() {
